@@ -18,7 +18,7 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
         android.applicationVariants.all { variant ->
             def variantName = variant.name
             if (variantName in generateJunkCodeExt.variants) {
-                def dir = new File(project.buildDir, "generate/source/junk/$variantName")
+                def dir = new File(project.buildDir, "generated/source/junk/$variantName")
                 def generateJunkCodeTask = project.task("generateJunkCode${variantName.capitalize()}", type: AndroidJunkCodeTask) {
                     packages = generateJunkCodeExt.packages
                     fileCountPerPackage = generateJunkCodeExt.fileCountPerPackage

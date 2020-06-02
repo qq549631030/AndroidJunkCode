@@ -102,7 +102,8 @@ class AndroidJunkCodeTask extends DefaultTask {
                 temp = -1
             }
         }
-        return sb.toString()
+        sb.append(index.toString())
+        return sb.toString().capitalize()
     }
 
     /**
