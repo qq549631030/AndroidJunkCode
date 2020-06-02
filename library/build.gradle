@@ -1,0 +1,42 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation 'com.squareup:javapoet:1.11.1'
+    implementation 'com.android.tools.build:gradle:4.0.0'
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"
+
+
+// load properties
+Properties properties = new Properties()
+File localPropertiesFile = project.file("$rootProject.projectDir.absolutePath/local.properties");
+if (localPropertiesFile.exists()) {
+    properties.load(localPropertiesFile.newDataInputStream())
+}
+def mavenUserName = properties.getProperty("mavenUserName")
+def mavenUserPassword = properties.getProperty("mavenUserPassword")
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+//            repository(url: 'http://192.168.20.155:8081/nexus/content/repositories/Pycredit/') {
+//                authentication(userName: mavenUserName, password: mavenUserPassword)
+//            }
+            repository(url: uri("../repo"))
+            pom.version = '1.0.0'
+            pom.artifactId = 'android-junk-code'
+            pom.groupId = 'cn.hx.plugin'
+            pom.project {
+                name = project.name
+                packaging = 'jar'
+                description = 'description'
+            }
+        }
+    }
+}
