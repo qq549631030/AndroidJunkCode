@@ -9,9 +9,7 @@ dependencies {
     implementation 'com.android.tools.build:gradle:4.0.0'
 }
 
-sourceCompatibility = "8"
-targetCompatibility = "8"
-
+apply from: rootProject.projectDir.absolutePath + "/bintray-release.gradle"
 
 // load properties
 Properties properties = new Properties()
@@ -19,8 +17,38 @@ File localPropertiesFile = project.file("$rootProject.projectDir.absolutePath/lo
 if (localPropertiesFile.exists()) {
     properties.load(localPropertiesFile.newDataInputStream())
 }
+File projectPropertiesFile = project.file("project.properties");
+if (projectPropertiesFile.exists()) {
+    properties.load(projectPropertiesFile.newDataInputStream())
+}
+
+def projectName = properties.getProperty("project.name")
+def projectGroupId = properties.getProperty("project.groupId")
+def projectArtifactId = properties.getProperty("project.artifactId")
+def projectArtifactName = properties.getProperty("project.artifactVersion")
+def projectSiteUrl = properties.getProperty("project.siteUrl")
+def projectGitUrl = properties.getProperty("project.gitUrl")
+def projectDesc = properties.getProperty("project.desc")
+
+def bintray_Org = properties.getProperty("bintray.org")
+def bintray_User = properties.getProperty("bintray.user")
+def bintrayApikey = properties.getProperty("bintray.apikey")
 def mavenUserName = properties.getProperty("mavenUserName")
 def mavenUserPassword = properties.getProperty("mavenUserPassword")
+
+publish {
+    groupId = projectGroupId
+    artifactId = projectArtifactId
+    uploadName = projectName
+    website = projectSiteUrl
+    repository = projectGitUrl
+    desc = projectDesc
+    publishVersion = projectArtifactName
+    userOrg = bintray_Org
+    bintrayUser = bintray_User
+    bintrayKey = bintrayApikey
+    dryRun = false
+}
 
 uploadArchives {
     repositories {
