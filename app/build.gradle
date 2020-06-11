@@ -39,8 +39,12 @@ dependencies {
 androidJunkCode {
     variants = ["debug"]
     packages = ["cn.hx.test"]
-    fileCountPerPackage = 30
-    methodCountPerClass = 20
+    activityCountPerPackage = 2
+    otherCountPerPackage = 10
+    methodCountPerClass = 10
+    resPrefix = "hx_junk_"
+    drawableCount = 30
+    stringCount = 30
 }
 //
 //afterEvaluate {

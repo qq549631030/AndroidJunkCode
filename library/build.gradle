@@ -25,7 +25,7 @@ def mavenUserPassword = properties.getProperty("mavenUserPassword")
 uploadArchives {
     repositories {
         mavenDeployer {
-//            repository(url: 'http://192.168.20.155:8081/nexus/content/repositories/Pycredit/') {
+//            repository(url: 'your repositories') {
 //                authentication(userName: mavenUserName, password: mavenUserPassword)
 //            }
             repository(url: uri("../repo"))
