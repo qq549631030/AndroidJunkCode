@@ -57,7 +57,7 @@ uploadArchives {
 //                authentication(userName: mavenUserName, password: mavenUserPassword)
 //            }
             repository(url: uri("../repo"))
-            pom.version = '1.0.0'
+            pom.version = '1.0.1'
             pom.artifactId = 'android-junk-code'
             pom.groupId = 'cn.hx.plugin'
             pom.project {

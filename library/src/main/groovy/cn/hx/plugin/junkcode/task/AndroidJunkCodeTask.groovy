@@ -1,8 +1,8 @@
 package cn.hx.plugin.junkcode.task
 
-
-import cn.hx.plugin.junkcode.template.ResTemplate
+import cn.hx.plugin.junkcode.ext.JunkCodeConfig
 import cn.hx.plugin.junkcode.template.ManifestTemplate
+import cn.hx.plugin.junkcode.template.ResTemplate
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
@@ -10,6 +10,7 @@ import com.squareup.javapoet.TypeSpec
 import groovy.text.GStringTemplateEngine
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectories
 import org.gradle.api.tasks.TaskAction
 
@@ -21,28 +22,20 @@ class AndroidJunkCodeTask extends DefaultTask {
 
     static abc = "abcdefghijklmnopqrstuvwxyz".toCharArray()
 
+    @Nested
+    JunkCodeConfig config = new JunkCodeConfig()
+
     @Input
     String manifestPackageName = ""
-    @Input
-    String[] packages = []
-    @Input
-    int activityCountPerPackage = 0
-    @Input
-    int otherCountPerPackage = 0
-    @Input
-    int methodCountPerClass = 0
-    @Input
-    String resPrefix = "junk_"
-    @Input
-    int drawableCount = 0
-    @Input
-    int stringCount = 0
 
     @OutputDirectories
     File outDir
 
     @TaskAction
     void execute() {
+        if (outDir.exists()) {
+            outDir.deleteDir()
+        }
         //通过成类
         generateClasses()
         //生成资源
@@ -53,28 +46,26 @@ class AndroidJunkCodeTask extends DefaultTask {
      * 生成java代码和AndroidManifest.xml
      */
     void generateClasses() {
-        def manifestFile = new File(outDir, "AndroidManifest.xml")
-        if (manifestFile.exists()) {
-            manifestFile.delete()
-        }
-        packages.each { packageName ->
+        def javaDir = new File(outDir, "java")
+        for (int i = 0; i < config.packageCount; i++) {
+            String packageName = config.packageBase + "." + generateName(i)
             //生成Activity
-            for (int i = 0; i < activityCountPerPackage; i++) {
-                def activityPreName = generateName(i)
+            for (int j = 0; j < config.activityCountPerPackage; j++) {
+                def activityPreName = generateName(j)
                 generateActivity(packageName, activityPreName)
             }
             //生成其它类
-            for (int i = 0; i < otherCountPerPackage; i++) {
-                def className = generateName(i).capitalize()
+            for (int j = 0; j < config.otherCountPerPackage; j++) {
+                def className = generateName(j).capitalize()
                 def typeBuilder = TypeSpec.classBuilder(className)
-                for (int j = 0; j < methodCountPerClass; j++) {
-                    def methodName = generateName(j)
+                for (int k = 0; k < config.methodCountPerClass; k++) {
+                    def methodName = generateName(k)
                     def methodBuilder = MethodSpec.methodBuilder(methodName)
                     generateMethods(methodBuilder)
                     typeBuilder.addMethod(methodBuilder.build())
                 }
                 def fileBuilder = JavaFile.builder(packageName, typeBuilder.build())
-                fileBuilder.build().writeTo(outDir)
+                fileBuilder.build().writeTo(javaDir)
             }
         }
     }
@@ -133,8 +124,9 @@ class AndroidJunkCodeTask extends DefaultTask {
      * @param activityPreName
      */
     void generateActivity(String packageName, String activityPreName) {
+        def javaDir = new File(outDir, "java")
         def className = activityPreName.capitalize() + "Activity"
-        def layoutName = "${resPrefix.toLowerCase()}${packageName.replace(".", "_")}_activity_${activityPreName}"
+        def layoutName = "${config.resPrefix.toLowerCase()}${packageName.replace(".", "_")}_activity_${activityPreName}"
         generateLayout(layoutName)
         def typeBuilder = TypeSpec.classBuilder(className)
         typeBuilder.superclass(ClassName.get("android.app", "Activity"))
@@ -148,14 +140,14 @@ class AndroidJunkCodeTask extends DefaultTask {
                 .addStatement("setContentView(\$T.layout.${layoutName})", ClassName.get(manifestPackageName, "R"))
                 .build())
         //其它方法
-        for (int j = 0; j < methodCountPerClass; j++) {
+        for (int j = 0; j < config.methodCountPerClass; j++) {
             def methodName = generateName(j)
             def methodBuilder = MethodSpec.methodBuilder(methodName)
             generateMethods(methodBuilder)
             typeBuilder.addMethod(methodBuilder.build())
         }
         def fileBuilder = JavaFile.builder(packageName, typeBuilder.build())
-        fileBuilder.build().writeTo(outDir)
+        fileBuilder.build().writeTo(javaDir)
         addToManifestByFileIo(className, packageName)
     }
 
@@ -164,17 +156,13 @@ class AndroidJunkCodeTask extends DefaultTask {
      */
     void generateRes() {
         //生成drawable
-        for (int i = 0; i < drawableCount; i++) {
-            def drawableName = "${resPrefix.toLowerCase()}${generateName(i)}"
+        for (int i = 0; i < config.drawableCount; i++) {
+            def drawableName = "${config.resPrefix.toLowerCase()}${generateName(i)}"
             generateDrawable(drawableName)
         }
         //生成string
-        def stringFile = new File(outDir, "res/values/strings.xml")
-        if (stringFile.exists()) {
-            stringFile.delete()
-        }
-        for (int i = 0; i < stringCount; i++) {
-            def name = "${resPrefix.toLowerCase()}${generateName(i)}"
+        for (int i = 0; i < config.stringCount; i++) {
+            def name = "${config.resPrefix.toLowerCase()}${generateName(i)}"
             def value = name
             addStringByFileIo(name, value)
         }
@@ -242,6 +230,9 @@ class AndroidJunkCodeTask extends DefaultTask {
      */
     void addToManifestByFileIo(String activityName, String packageName) {
         def manifestFile = new File(outDir, "AndroidManifest.xml")
+        if (!manifestFile.getParentFile().exists()) {
+            manifestFile.getParentFile().mkdirs()
+        }
         if (!manifestFile.exists()) {
             def template = ManifestTemplate.TEMPLATE
             FileWriter writer

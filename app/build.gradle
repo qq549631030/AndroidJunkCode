@@ -24,6 +24,24 @@ android {
     }
 }
 
+android.applicationVariants.all { variant ->
+    switch (variant.name) {
+        case "debug":
+        case "release":
+            androidJunkCode.configMap.put(variant.name, {
+                packageBase = "cn.hx.plugin.ui"
+                packageCount = 30
+                activityCountPerPackage = 3
+                otherCountPerPackage = 10
+                methodCountPerClass = 10
+                resPrefix = "lite_junk_"
+                drawableCount = 30
+                stringCount = 30
+            })
+            break
+    }
+}
+
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -36,16 +54,7 @@ dependencies {
 
 }
 
-androidJunkCode {
-    variants = ["debug"]
-    packages = ["cn.hx.test"]
-    activityCountPerPackage = 2
-    otherCountPerPackage = 10
-    methodCountPerClass = 10
-    resPrefix = "hx_junk_"
-    drawableCount = 30
-    stringCount = 30
-}
+
 //
 //afterEvaluate {
 //    project.tasks.all { task ->
