@@ -25,7 +25,7 @@ if (projectPropertiesFile.exists()) {
 def projectName = properties.getProperty("project.name")
 def projectGroupId = properties.getProperty("project.groupId")
 def projectArtifactId = properties.getProperty("project.artifactId")
-def projectArtifactName = properties.getProperty("project.artifactVersion")
+def projectArtifactVersion = properties.getProperty("project.artifactVersion")
 def projectSiteUrl = properties.getProperty("project.siteUrl")
 def projectGitUrl = properties.getProperty("project.gitUrl")
 def projectDesc = properties.getProperty("project.desc")
@@ -43,7 +43,7 @@ publish {
     website = projectSiteUrl
     repository = projectGitUrl
     desc = projectDesc
-    publishVersion = projectArtifactName
+    publishVersion = projectArtifactVersion
     userOrg = bintray_Org
     bintrayUser = bintray_User
     bintrayKey = bintrayApikey
@@ -57,7 +57,7 @@ uploadArchives {
 //                authentication(userName: mavenUserName, password: mavenUserPassword)
 //            }
             repository(url: uri("../repo"))
-            pom.version = '1.0.1'
+            pom.version = projectArtifactVersion
             pom.artifactId = 'android-junk-code'
             pom.groupId = 'cn.hx.plugin'
             pom.project {

@@ -12,7 +12,7 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -33,8 +33,8 @@ android.applicationVariants.all { variant ->
                 packageCount = 30
                 activityCountPerPackage = 3
                 otherCountPerPackage = 10
-                methodCountPerClass = 10
-                resPrefix = "lite_junk_"
+                methodCountPerClass = 20
+                resPrefix = "junk_"
                 drawableCount = 30
                 stringCount = 30
             })
@@ -45,6 +45,7 @@ android.applicationVariants.all { variant ->
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.core:core-ktx:1.3.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
