@@ -24,7 +24,7 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
                 if (junkCodeConfig) {
                     def dir = new File(project.buildDir, "generated/source/junk/$variantName")
                     String packageName = findPackageName(variant)
-                    def generateJunkCodeTask = project.task("generateJunkCode${variantName.capitalize()}", type: AndroidJunkCodeTask) {
+                    def generateJunkCodeTask = project.task("generate${variantName.capitalize()}JunkCode", type: AndroidJunkCodeTask) {
                         junkCodeConfig.delegate = config
                         junkCodeConfig.resolveStrategy = DELEGATE_FIRST
                         junkCodeConfig.call()

@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'android-junk-code'
+apply plugin: 'com.getkeepsafe.dexcount'
 
 android {
     compileSdkVersion 29
@@ -26,17 +27,16 @@ android {
 
 android.applicationVariants.all { variant ->
     switch (variant.name) {
-        case "debug":
         case "release":
             androidJunkCode.configMap.put(variant.name, {
                 packageBase = "cn.hx.plugin.ui"
                 packageCount = 30
                 activityCountPerPackage = 3
-                otherCountPerPackage = 10
+                otherCountPerPackage = 50
                 methodCountPerClass = 20
                 resPrefix = "junk_"
-                drawableCount = 30
-                stringCount = 30
+                drawableCount = 300
+                stringCount = 300
             })
             break
     }

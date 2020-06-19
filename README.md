@@ -31,16 +31,39 @@ android.applicationVariants.all { variant ->
                 packageBase = "cn.hx.plugin.ui"  //生成java类根包名
                 packageCount = 30 //生成包数量
                 activityCountPerPackage = 3 //每个包下生成Activity类数量
-                otherCountPerPackage = 10  //每个包下生成其它类的数量
-                methodCountPerClass = 10  //每个类下生成方法数量
-                resPrefix = "lite_junk_"  //生成的layout、drawable、string等资源名前缀
-                drawableCount = 30  //生成drawable资源数量
-                stringCount = 30  //生成string数量
+                otherCountPerPackage = 50  //每个包下生成其它类的数量
+                methodCountPerClass = 20  //每个类下生成方法数量
+                resPrefix = "junk_"  //生成的layout、drawable、string等资源名前缀
+                drawableCount = 300  //生成drawable资源数量
+                stringCount = 300  //生成string数量
             })
             break
     }
 }
 ```
 
-### 生在文件所有目录
+### 生成文件所有目录
 build/generated/source/junk
+
+### 使用插件[methodCount](https://github.com/KeepSafe/dexcount-gradle-plugin)对比
+
+#### 未加垃圾代码
+```
+Total methods in app-debug.apk: 26162 (39.92% used)
+Total fields in app-debug.apk:  12771 (19.49% used)
+Total classes in app-debug.apk:  2897 (4.42% used)
+Methods remaining in app-debug.apk: 39373
+Fields remaining in app-debug.apk:  52764
+Classes remaining in app-debug.apk:  62638
+```
+
+#### 加了垃圾代码
+```
+Total methods in app-release-unsigned.apk: 59733 (91.15% used)
+Total fields in app-release-unsigned.apk:  13462 (20.54% used)
+Total classes in app-release-unsigned.apk:  4488 (6.85% used)
+Methods remaining in app-release-unsigned.apk: 5802
+Fields remaining in app-release-unsigned.apk:  52073
+Classes remaining in app-release-unsigned.apk:  61047
+```
+增加了1591个类33571个方法
