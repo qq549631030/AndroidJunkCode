@@ -30,9 +30,9 @@ android.applicationVariants.all { variant ->
             androidJunkCode.configMap.put(variant.name, {
                 packageBase = "cn.hx.plugin.ui"  //生成java类根包名
                 packageCount = 30 //生成包数量
-                activityCountPerPackage = 3 //每个包下生成Activity数量
-                otherCountPerPackage = 10  //每个类生生成方法数量
-                methodCountPerClass = 10  //每个类生生成方法数量
+                activityCountPerPackage = 3 //每个包下生成Activity类数量
+                otherCountPerPackage = 10  //每个包下生成其它类的数量
+                methodCountPerClass = 10  //每个类下生成方法数量
                 resPrefix = "lite_junk_"  //生成的layout、drawable、string等资源名前缀
                 drawableCount = 30  //生成drawable资源数量
                 stringCount = 30  //生成string数量
@@ -41,3 +41,6 @@ android.applicationVariants.all { variant ->
     }
 }
 ```
+
+### 生在文件所有目录
+build/generated/source/junk
