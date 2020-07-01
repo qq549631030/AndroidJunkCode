@@ -6,7 +6,7 @@ dependencies {
     implementation gradleApi()
     implementation localGroovy()
     implementation 'com.squareup:javapoet:1.11.1'
-    implementation 'com.android.tools.build:gradle:4.0.0'
+    implementation 'com.android.tools.build:gradle:3.0.0'
 }
 
 apply from: rootProject.projectDir.absolutePath + "/bintray-release.gradle"
@@ -47,7 +47,7 @@ publish {
     userOrg = bintray_Org
     bintrayUser = bintray_User
     bintrayKey = bintrayApikey
-    dryRun = true
+    dryRun = false
 }
 
 uploadArchives {
