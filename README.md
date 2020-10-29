@@ -24,8 +24,7 @@ android {
 }
 
 android.applicationVariants.all { variant ->
-    switch (variant.name) {
-        case "debug":
+    switch (variant.name) {//变体名称，如果没有设置productFlavors就是buildType名称，如果有设置productFlavors就是flavor+buildType，例如（freeRelease、proRelease）
         case "release":
             androidJunkCode.configMap.put(variant.name, {
                 packageBase = "cn.hx.plugin.ui"  //生成java类根包名
