@@ -10,7 +10,7 @@
 ```
 buildscript {
     dependencies {
-        classpath "cn.hx.plugin:android-junk-code:1.0.2"
+        classpath "cn.hx.plugin:android-junk-code:1.0.3"
     }
 }
 ```
@@ -41,7 +41,7 @@ android.applicationVariants.all { variant ->
 }
 ```
 
-### 生成文件所有目录
+### 生成文件所在目录
 build/generated/source/junk
 
 ### 使用插件[methodCount](https://github.com/KeepSafe/dexcount-gradle-plugin)对比

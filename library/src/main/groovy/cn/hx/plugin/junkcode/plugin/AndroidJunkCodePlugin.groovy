@@ -23,6 +23,9 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
                 Closure<JunkCodeConfig> junkCodeConfig = generateJunkCodeExt.configMap[variantName]
                 if (junkCodeConfig) {
                     def dir = new File(project.buildDir, "generated/source/junk/$variantName")
+                    def resDir = new File(dir, "res")
+                    def javaDir = new File(dir, "java")
+                    def manifestFile = new File(dir, "AndroidManifest.xml")
                     String packageName = findPackageName(variant)
                     def generateJunkCodeTask = project.task("generate${variantName.capitalize()}JunkCode", type: AndroidJunkCodeTask) {
                         junkCodeConfig.delegate = config
@@ -35,14 +38,26 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
                     for (int i = variant.sourceSets.size() - 1; i >= 0; i--) {
                         def sourceSet = variant.sourceSets[i]
                         if (!sourceSet.manifestFile.exists()) {
-                            android.sourceSets."${sourceSet.name}".manifest.srcFile(new File(dir, "AndroidManifest.xml").absolutePath)
+                            android.sourceSets."${sourceSet.name}".manifest.srcFile(manifestFile.absolutePath)
                             break
                         }
                     }
-                    android.sourceSets."${variantName}".res.srcDir(new File(dir, "res"))
-                    variant.registerJavaGeneratingTask(generateJunkCodeTask, new File(dir, "java"))
-                    //在执行generateBuildConfig之前执行generateJunkCodeTask
-                    variant.generateBuildConfigProvider.get().dependsOn(generateJunkCodeTask)
+                    if (variant.respondsTo("registerGeneratedResFolders")) {
+                        generateJunkCodeTask.ext.generatedResFolders = project
+                                .files(resDir)
+                                .builtBy(generateJunkCodeTask)
+                        variant.registerGeneratedResFolders(generateJunkCodeTask.generatedResFolders)
+                        if (variant.hasProperty("mergeResourcesProvider")) {
+                            variant.mergeResourcesProvider.configure { dependsOn(generateJunkCodeTask) }
+                        } else {
+                            //noinspection GrDeprecatedAPIUsage
+                            variant.mergeResources.dependsOn(generateJunkCodeTask)
+                        }
+                    } else {
+                        //noinspection GrDeprecatedAPIUsage
+                        variant.registerResGeneratingTask(generateJunkCodeTask, resDir)
+                    }
+                    variant.registerJavaGeneratingTask(generateJunkCodeTask, javaDir)
                 }
             }
         }
