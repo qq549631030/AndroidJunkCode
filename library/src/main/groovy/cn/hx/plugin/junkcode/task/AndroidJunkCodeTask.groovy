@@ -58,6 +58,7 @@ class AndroidJunkCodeTask extends DefaultTask {
             for (int j = 0; j < config.otherCountPerPackage; j++) {
                 def className = generateName(j).capitalize()
                 def typeBuilder = TypeSpec.classBuilder(className)
+                typeBuilder.addModifiers(Modifier.PUBLIC)
                 for (int k = 0; k < config.methodCountPerClass; k++) {
                     def methodName = generateName(k)
                     def methodBuilder = MethodSpec.methodBuilder(methodName)
@@ -130,6 +131,7 @@ class AndroidJunkCodeTask extends DefaultTask {
         generateLayout(layoutName)
         def typeBuilder = TypeSpec.classBuilder(className)
         typeBuilder.superclass(ClassName.get("android.app", "Activity"))
+        typeBuilder.addModifiers(Modifier.PUBLIC)
         //onCreate方法
         def bundleClassName = ClassName.get("android.os", "Bundle")
         typeBuilder.addMethod(MethodSpec.methodBuilder("onCreate")
