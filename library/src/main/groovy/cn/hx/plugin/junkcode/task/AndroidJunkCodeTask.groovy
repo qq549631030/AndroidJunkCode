@@ -32,7 +32,7 @@ class AndroidJunkCodeTask extends DefaultTask {
     File outDir
 
     @TaskAction
-    void execute() {
+    void generateJunkCode() {
         if (outDir.exists()) {
             outDir.deleteDir()
         }

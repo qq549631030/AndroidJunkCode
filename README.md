@@ -10,7 +10,7 @@
 ```
 buildscript {
     dependencies {
-        classpath "cn.hx.plugin:android-junk-code:1.0.4"
+        classpath "cn.hx.plugin:android-junk-code:1.0.5"
     }
 }
 ```
