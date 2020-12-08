@@ -35,6 +35,7 @@ android.applicationVariants.all { variant ->
                 packageBase = "cn.hx.plugin.ui"
                 packageCount = 30
                 activityCountPerPackage = 3
+                excludeActivityJavaFile = false
                 otherCountPerPackage = 50
                 methodCountPerClass = 20
                 resPrefix = "junk_"

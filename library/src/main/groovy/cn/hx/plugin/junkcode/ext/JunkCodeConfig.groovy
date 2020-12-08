@@ -10,6 +10,8 @@ class JunkCodeConfig {
     @Input
     int activityCountPerPackage = 0
     @Input
+    boolean excludeActivityJavaFile = false
+    @Input
     int otherCountPerPackage = 0
     @Input
     int methodCountPerClass = 0

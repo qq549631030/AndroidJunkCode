@@ -129,27 +129,29 @@ class AndroidJunkCodeTask extends DefaultTask {
         def className = activityPreName.capitalize() + "Activity"
         def layoutName = "${config.resPrefix.toLowerCase()}${packageName.replace(".", "_")}_activity_${activityPreName}"
         generateLayout(layoutName)
-        def typeBuilder = TypeSpec.classBuilder(className)
-        typeBuilder.superclass(ClassName.get("android.app", "Activity"))
-        typeBuilder.addModifiers(Modifier.PUBLIC)
-        //onCreate方法
-        def bundleClassName = ClassName.get("android.os", "Bundle")
-        typeBuilder.addMethod(MethodSpec.methodBuilder("onCreate")
-                .addAnnotation(Override.class)
-                .addModifiers(Modifier.PROTECTED)
-                .addParameter(bundleClassName, "savedInstanceState")
-                .addStatement("super.onCreate(savedInstanceState)")
-                .addStatement("setContentView(\$T.layout.${layoutName})", ClassName.get(manifestPackageName, "R"))
-                .build())
-        //其它方法
-        for (int j = 0; j < config.methodCountPerClass; j++) {
-            def methodName = generateName(j)
-            def methodBuilder = MethodSpec.methodBuilder(methodName)
-            generateMethods(methodBuilder)
-            typeBuilder.addMethod(methodBuilder.build())
+        if (!config.excludeActivityJavaFile) {
+            def typeBuilder = TypeSpec.classBuilder(className)
+            typeBuilder.superclass(ClassName.get("android.app", "Activity"))
+            typeBuilder.addModifiers(Modifier.PUBLIC)
+            //onCreate方法
+            def bundleClassName = ClassName.get("android.os", "Bundle")
+            typeBuilder.addMethod(MethodSpec.methodBuilder("onCreate")
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PROTECTED)
+                    .addParameter(bundleClassName, "savedInstanceState")
+                    .addStatement("super.onCreate(savedInstanceState)")
+                    .addStatement("setContentView(\$T.layout.${layoutName})", ClassName.get(manifestPackageName, "R"))
+                    .build())
+            //其它方法
+            for (int j = 0; j < config.methodCountPerClass; j++) {
+                def methodName = generateName(j)
+                def methodBuilder = MethodSpec.methodBuilder(methodName)
+                generateMethods(methodBuilder)
+                typeBuilder.addMethod(methodBuilder.build())
+            }
+            def fileBuilder = JavaFile.builder(packageName, typeBuilder.build())
+            fileBuilder.build().writeTo(javaDir)
         }
-        def fileBuilder = JavaFile.builder(packageName, typeBuilder.build())
-        fileBuilder.build().writeTo(javaDir)
         addToManifestByFileIo(className, packageName)
     }
 

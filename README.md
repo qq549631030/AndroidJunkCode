@@ -30,6 +30,7 @@ android.applicationVariants.all { variant ->
                 packageBase = "cn.hx.plugin.ui"  //生成java类根包名
                 packageCount = 30 //生成包数量
                 activityCountPerPackage = 3 //每个包下生成Activity类数量
+                excludeActivityJavaFile = false //是否排除生成Activity的Java文件,默认false(layout和写入AndroidManifest.xml还会执行)，主要用于处理类似神策全埋点编译过慢问题
                 otherCountPerPackage = 50  //每个包下生成其它类的数量
                 methodCountPerClass = 20  //每个类下生成方法数量
                 resPrefix = "junk_"  //生成的layout、drawable、string等资源名前缀
