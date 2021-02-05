@@ -1,7 +1,5 @@
 #  Android垃圾代码生成插件
 
-[![Download](https://api.bintray.com/packages/qq549631030/maven/AndroidJunkCode/images/download.svg) ](https://bintray.com/qq549631030/maven/AndroidJunkCode/_latestVersion)
-
 此插件用于做马甲包时，减小马甲包与主包的代码相似度，避免被OPPO、VIVO等应用市场识别为马甲包。
 
 ### 使用方法
@@ -9,11 +7,18 @@
 根目录的build.gradle中：
 ```
 buildscript {
+    repositories {
+		mavenCentral()
+    }
     dependencies {
-        classpath "cn.hx.plugin:android-junk-code:1.0.5"
+        classpath "com.github.qq549631030:android-junk-code:1.0.6"
     }
 }
 ```
+**由于jcenter即将关闭后续版本将不再发布到jcenter，转为发布到mavenCentral，groupId从原来的"cn.hx.plugin"改为"com.github.qq549631030"**
+
+
+
 app目录的build.gradle模块中：
 ```
 apply plugin: 'com.android.application'

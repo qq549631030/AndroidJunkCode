@@ -1,5 +1,5 @@
 apply plugin: 'groovy'
-apply plugin: 'maven'
+apply plugin: "com.vanniktech.maven.publish"
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -9,62 +9,21 @@ dependencies {
     implementation 'com.android.tools.build:gradle:3.0.0'
 }
 
-apply from: rootProject.projectDir.absolutePath + "/bintray-release.gradle"
-
 // load properties
 Properties properties = new Properties()
 File localPropertiesFile = project.file("$rootProject.projectDir.absolutePath/local.properties");
 if (localPropertiesFile.exists()) {
     properties.load(localPropertiesFile.newDataInputStream())
 }
-File projectPropertiesFile = project.file("project.properties");
-if (projectPropertiesFile.exists()) {
-    properties.load(projectPropertiesFile.newDataInputStream())
-}
 
-def projectName = properties.getProperty("project.name")
-def projectGroupId = properties.getProperty("project.groupId")
-def projectArtifactId = properties.getProperty("project.artifactId")
-def projectArtifactVersion = properties.getProperty("project.artifactVersion")
-def projectSiteUrl = properties.getProperty("project.siteUrl")
-def projectGitUrl = properties.getProperty("project.gitUrl")
-def projectDesc = properties.getProperty("project.desc")
+def pgpKeyId = properties.getProperty("pgpKeyId")
+def pgpKeyPassword = properties.getProperty("pgpKeyPassword")
+def pgpSecretKeyRingFile = properties.getProperty("pgpSecretKeyRingFile")
+def sonatypeNexusUsername = properties.getProperty("sonatypeNexusUsername")
+def sonatypeNexusPassword = properties.getProperty("sonatypeNexusPassword")
 
-def bintray_Org = properties.getProperty("bintray.org")
-def bintray_User = properties.getProperty("bintray.user")
-def bintrayApikey = properties.getProperty("bintray.apikey")
-def mavenUserName = properties.getProperty("mavenUserName")
-def mavenUserPassword = properties.getProperty("mavenUserPassword")
-
-publish {
-    groupId = projectGroupId
-    artifactId = projectArtifactId
-    uploadName = projectName
-    website = projectSiteUrl
-    repository = projectGitUrl
-    desc = projectDesc
-    publishVersion = projectArtifactVersion
-    userOrg = bintray_Org
-    bintrayUser = bintray_User
-    bintrayKey = bintrayApikey
-    dryRun = false
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-//            repository(url: 'your repositories') {
-//                authentication(userName: mavenUserName, password: mavenUserPassword)
-//            }
-            repository(url: uri("../repo"))
-            pom.version = projectArtifactVersion
-            pom.artifactId = 'android-junk-code'
-            pom.groupId = 'cn.hx.plugin'
-            pom.project {
-                name = project.name
-                packaging = 'jar'
-                description = 'description'
-            }
-        }
-    }
-}
+ext."signing.keyId" = pgpKeyId
+ext."signing.password" = pgpKeyPassword
+ext."signing.secretKeyRingFile" = pgpSecretKeyRingFile
+ext."SONATYPE_NEXUS_USERNAME" = sonatypeNexusUsername
+ext."SONATYPE_NEXUS_PASSWORD" = sonatypeNexusPassword
