@@ -10,7 +10,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.github.qq549631030:android-junk-code:1.0.6"
+        classpath "com.github.qq549631030:android-junk-code:1.0.7"
         classpath 'com.vanniktech:gradle-maven-publish-plugin:0.13.0'
         classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:2.0.0"
 

@@ -8,22 +8,3 @@ dependencies {
     implementation 'com.squareup:javapoet:1.13.0'
     implementation 'com.android.tools.build:gradle:3.0.0'
 }
-
-// load properties
-Properties properties = new Properties()
-File localPropertiesFile = project.file("$rootProject.projectDir.absolutePath/local.properties");
-if (localPropertiesFile.exists()) {
-    properties.load(localPropertiesFile.newDataInputStream())
-}
-
-def pgpKeyId = properties.getProperty("pgpKeyId")
-def pgpKeyPassword = properties.getProperty("pgpKeyPassword")
-def pgpSecretKeyRingFile = properties.getProperty("pgpSecretKeyRingFile")
-def sonatypeNexusUsername = properties.getProperty("sonatypeNexusUsername")
-def sonatypeNexusPassword = properties.getProperty("sonatypeNexusPassword")
-
-ext."signing.keyId" = pgpKeyId
-ext."signing.password" = pgpKeyPassword
-ext."signing.secretKeyRingFile" = pgpSecretKeyRingFile
-ext."SONATYPE_NEXUS_USERNAME" = sonatypeNexusUsername
-ext."SONATYPE_NEXUS_PASSWORD" = sonatypeNexusPassword

@@ -366,6 +366,9 @@ class AndroidJunkCodeTask extends DefaultTask {
      */
     static String generateName(int index) {
         def sb = new StringBuffer()
+        for (i in 0..4) {
+            sb.append(abc[random.nextInt(abc.size())])
+        }
         int temp = index
         while (temp >= 0) {
             sb.append(abc[temp % abc.size()])
