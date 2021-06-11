@@ -53,22 +53,14 @@ build/generated/source/junk
 ### 使用插件[methodCount](https://github.com/KeepSafe/dexcount-gradle-plugin)对比
 
 #### 未加垃圾代码
-```
-Total methods in app-debug.apk: 26162 (39.92% used)
-Total fields in app-debug.apk:  12771 (19.49% used)
-Total classes in app-debug.apk:  2897 (4.42% used)
-Methods remaining in app-debug.apk: 39373
-Fields remaining in app-debug.apk:  52764
-Classes remaining in app-debug.apk:  62638
-```
+
+**项目代码占比 0.13%**
+
+![方法总数](images/before_total.jpg)![项目方法数](images/before_project.jpg)
+
 
 #### 加了垃圾代码
-```
-Total methods in app-release-unsigned.apk: 59733 (91.15% used)
-Total fields in app-release-unsigned.apk:  13462 (20.54% used)
-Total classes in app-release-unsigned.apk:  4488 (6.85% used)
-Methods remaining in app-release-unsigned.apk: 5802
-Fields remaining in app-release-unsigned.apk:  52073
-Classes remaining in app-release-unsigned.apk:  61047
-```
-增加了1591个类33571个方法
+
+**项目代码占比 52.93%**
+
+![方法总数](images/after_total.jpg)![项目方法数](images/after_project.jpg)
