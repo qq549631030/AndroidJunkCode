@@ -4,7 +4,6 @@ import cn.hx.plugin.junkcode.ext.AndroidJunkCodeExt
 import cn.hx.plugin.junkcode.ext.JunkCodeConfig
 import cn.hx.plugin.junkcode.task.AndroidJunkCodeTask
 import com.android.build.gradle.AppExtension
-import com.android.build.gradle.api.ApplicationVariant
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -17,71 +16,82 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
             throw IllegalArgumentException("must apply this plugin after 'com.android.application'")
         }
         def generateJunkCodeExt = project.extensions.create("androidJunkCode", AndroidJunkCodeExt)
+        generateJunkCodeExt.variantConfig = project.container(JunkCodeConfig.class, new JunkCodeConfigFactory())
+
+        android.applicationVariants.all { variant ->
+            def variantName = variant.name
+            def junkCodeConfig = generateJunkCodeExt.variantConfig.findByName(variantName)
+            if (junkCodeConfig) {
+                createGenerateJunkCodeTask(project, android, variant, junkCodeConfig)
+            }
+        }
+
         project.afterEvaluate {
             android.applicationVariants.all { variant ->
                 def variantName = variant.name
-                Closure<JunkCodeConfig> junkCodeConfig = generateJunkCodeExt.configMap[variantName]
-                if (junkCodeConfig) {
-                    def dir = new File(project.buildDir, "generated/source/junk/$variantName")
-                    def resDir = new File(dir, "res")
-                    def javaDir = new File(dir, "java")
-                    def manifestFile = new File(dir, "AndroidManifest.xml")
-                    String packageName = findPackageName(variant)
-                    def generateJunkCodeTask = project.task("generate${variantName.capitalize()}JunkCode", type: AndroidJunkCodeTask) {
-                        junkCodeConfig.delegate = config
-                        junkCodeConfig.resolveStrategy = DELEGATE_FIRST
-                        junkCodeConfig.call()
-                        manifestPackageName = packageName
-                        outDir = dir
-                    }
-                    //将自动生成的AndroidManifest.xml加入到一个未被占用的manifest位置(如果都占用了就不合并了，通常较少出现全被占用情况)
-                    for (int i = variant.sourceSets.size() - 1; i >= 0; i--) {
-                        def sourceSet = variant.sourceSets[i]
-                        if (!sourceSet.manifestFile.exists()) {
-                            android.sourceSets."${sourceSet.name}".manifest.srcFile(manifestFile.absolutePath)
-                            break
-                        }
-                    }
-                    if (variant.respondsTo("registerGeneratedResFolders")) {
-                        generateJunkCodeTask.ext.generatedResFolders = project
-                                .files(resDir)
-                                .builtBy(generateJunkCodeTask)
-                        variant.registerGeneratedResFolders(generateJunkCodeTask.generatedResFolders)
-                        if (variant.hasProperty("mergeResourcesProvider")) {
-                            variant.mergeResourcesProvider.configure { dependsOn(generateJunkCodeTask) }
-                        } else {
-                            //noinspection GrDeprecatedAPIUsage
-                            variant.mergeResources.dependsOn(generateJunkCodeTask)
-                        }
-                    } else {
-                        //noinspection GrDeprecatedAPIUsage
-                        variant.registerResGeneratingTask(generateJunkCodeTask, resDir)
-                    }
-                    variant.registerJavaGeneratingTask(generateJunkCodeTask, javaDir)
+                def generateJunkCodeTaskName = "generate${variantName.capitalize()}JunkCode"
+                def generateJunkCodeTask = project.tasks.findByName(generateJunkCodeTaskName)
+                if (generateJunkCodeTask) {
+                    //已经用variantConfig方式配置过了
+                    return
+                }
+                def closure = generateJunkCodeExt.configMap[variantName]
+                if (closure) {
+                    def junkCodeConfig = new JunkCodeConfig()
+                    closure.delegate = junkCodeConfig
+                    closure.resolveStrategy = Closure.DELEGATE_FIRST
+                    closure.call()
+                    println("AndroidJunkCode: configMap配置方式已过时，请使用variantConfig配置方式")
+                    createGenerateJunkCodeTask(project, android, variant, junkCodeConfig)
                 }
             }
         }
     }
 
-
-    /**
-     * 从AndroidManifest.xml找到package name
-     * @param variant
-     * @return
-     */
-    static String findPackageName(ApplicationVariant variant) {
-        String packageName = null
-        for (int i = 0; i < variant.sourceSets.size(); i++) {
+    private def createGenerateJunkCodeTask = { project, android, variant, junkCodeConfig ->
+        def variantName = variant.name
+        def generateJunkCodeTaskName = "generate${variantName.capitalize()}JunkCode"
+        def dir = new File(project.buildDir, "generated/source/junk/$variantName")
+        def resDir = new File(dir, "res")
+        def javaDir = new File(dir, "java")
+        def manifestFile = new File(dir, "AndroidManifest.xml")
+        //从main/AndroidManifest.xml找到package name
+        def mainManifestFile = android.sourceSets.findByName("main").manifest.srcFile
+        def parser = new XmlParser()
+        def node = parser.parse(mainManifestFile)
+        def packageName = node.attribute("package")
+        def generateJunkCodeTask = project.task(generateJunkCodeTaskName, type: AndroidJunkCodeTask) {
+            config = junkCodeConfig
+            manifestPackageName = packageName
+            outDir = dir
+        }
+        //将自动生成的AndroidManifest.xml加入到一个未被占用的manifest位置(如果都占用了就不合并了，通常较少出现全被占用情况)
+        for (int i = variant.sourceSets.size() - 1; i >= 0; i--) {
             def sourceSet = variant.sourceSets[i]
-            if (sourceSet.manifestFile.exists()) {
-                def parser = new XmlParser()
-                Node node = parser.parse(sourceSet.manifestFile)
-                packageName = node.attribute("package")
-                if (packageName != null) {
-                    break
+            if (!sourceSet.manifestFile.exists()) {
+                android.sourceSets."${sourceSet.name}".manifest.srcFile(manifestFile.absolutePath)
+                def processMainManifestTask = project.tasks.findByName("process${variantName.capitalize()}MainManifest")
+                if (processMainManifestTask) {
+                    processMainManifestTask.dependsOn(generateJunkCodeTask)
                 }
+                break
             }
         }
-        return packageName
+        if (variant.respondsTo("registerGeneratedResFolders")) {
+            generateJunkCodeTask.ext.generatedResFolders = project
+                    .files(resDir)
+                    .builtBy(generateJunkCodeTask)
+            variant.registerGeneratedResFolders(generateJunkCodeTask.generatedResFolders)
+            if (variant.hasProperty("mergeResourcesProvider")) {
+                variant.mergeResourcesProvider.configure { dependsOn(generateJunkCodeTask) }
+            } else {
+                //noinspection GrDeprecatedAPIUsage
+                variant.mergeResources.dependsOn(generateJunkCodeTask)
+            }
+        } else {
+            //noinspection GrDeprecatedAPIUsage
+            variant.registerResGeneratingTask(generateJunkCodeTask, resDir)
+        }
+        variant.registerJavaGeneratingTask(generateJunkCodeTask, javaDir)
     }
 }

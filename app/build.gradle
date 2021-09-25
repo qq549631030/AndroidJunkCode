@@ -5,12 +5,12 @@ apply plugin: 'com.getkeepsafe.dexcount'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId "cn.hx.plugin.junkcode.demo"
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -32,21 +32,21 @@ android {
     }
 }
 
-android.applicationVariants.all { variant ->
-    switch (variant.name) {
-        case "release":
-            androidJunkCode.configMap.put(variant.name, {
-                packageBase = "cn.hx.plugin.ui"
-                packageCount = 30
-                activityCountPerPackage = 3
-                excludeActivityJavaFile = false
-                otherCountPerPackage = 50
-                methodCountPerClass = 20
-                resPrefix = "junk_"
-                drawableCount = 300
-                stringCount = 300
-            })
-            break
+androidJunkCode {
+    def config = {
+        packageBase = "cn.hx.plugin.ui"
+        packageCount = 30
+        activityCountPerPackage = 3
+        excludeActivityJavaFile = false
+        otherCountPerPackage = 50
+        methodCountPerClass = 20
+        resPrefix = "junk_"
+        drawableCount = 300
+        stringCount = 300
+    }
+    variantConfig {
+        debug config
+        release config
     }
 }
 
@@ -54,11 +54,10 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'androidx.core:core-ktx:1.5.0'
-    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }

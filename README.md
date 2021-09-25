@@ -11,7 +11,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.github.qq549631030:android-junk-code:1.0.7"
+        classpath "com.github.qq549631030:android-junk-code:1.0.8"
     }
 }
 ```
@@ -20,29 +20,45 @@ buildscript {
 
 
 app目录的build.gradle模块中：
-```
+```groovy
 apply plugin: 'com.android.application'
 apply plugin: 'android-junk-code'
 
-android {
-    //xxx
+androidJunkCode {
+    variantConfig {
+        release {//变体名称，如果没有设置productFlavors就是buildType名称，如果有设置productFlavors就是flavor+buildType，例如（freeRelease、proRelease）
+            packageBase = "cn.hx.plugin.ui"  //生成java类根包名
+            packageCount = 30 //生成包数量
+            activityCountPerPackage = 3 //每个包下生成Activity类数量
+            excludeActivityJavaFile = false //是否排除生成Activity的Java文件,默认false(layout和写入AndroidManifest.xml还会执行)，主要用于处理类似神策全埋点编译过慢问题
+            otherCountPerPackage = 50  //每个包下生成其它类的数量
+            methodCountPerClass = 20  //每个类下生成方法数量
+            resPrefix = "junk_"  //生成的layout、drawable、string等资源名前缀
+            drawableCount = 300  //生成drawable资源数量
+            stringCount = 300  //生成string数量
+        }
+    }
 }
+```
 
-android.applicationVariants.all { variant ->
-    switch (variant.name) {//变体名称，如果没有设置productFlavors就是buildType名称，如果有设置productFlavors就是flavor+buildType，例如（freeRelease、proRelease）
-        case "release":
-            androidJunkCode.configMap.put(variant.name, {
-                packageBase = "cn.hx.plugin.ui"  //生成java类根包名
-                packageCount = 30 //生成包数量
-                activityCountPerPackage = 3 //每个包下生成Activity类数量
-                excludeActivityJavaFile = false //是否排除生成Activity的Java文件,默认false(layout和写入AndroidManifest.xml还会执行)，主要用于处理类似神策全埋点编译过慢问题
-                otherCountPerPackage = 50  //每个包下生成其它类的数量
-                methodCountPerClass = 20  //每个类下生成方法数量
-                resPrefix = "junk_"  //生成的layout、drawable、string等资源名前缀
-                drawableCount = 300  //生成drawable资源数量
-                stringCount = 300  //生成string数量
-            })
-            break
+**原configMap配置方式已过时，1.0.8版以后请使用variantConfig配置方式"**
+如果有多个变体共用一个配置可以这样做
+```groovy
+androidJunkCode {
+    def config = {
+        packageBase = "cn.hx.plugin.ui"
+        packageCount = 30
+        activityCountPerPackage = 3
+        excludeActivityJavaFile = false
+        otherCountPerPackage = 50
+        methodCountPerClass = 20
+        resPrefix = "junk_"
+        drawableCount = 300
+        stringCount = 300
+    }
+    variantConfig {
+        debug config
+        release config
     }
 }
 ```

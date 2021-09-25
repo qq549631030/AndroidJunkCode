@@ -1,6 +1,7 @@
 package cn.hx.plugin.junkcode.ext
 
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 
 class JunkCodeConfig {
     @Input
@@ -21,4 +22,11 @@ class JunkCodeConfig {
     int drawableCount = 0
     @Input
     int stringCount = 0
+
+    @Internal
+    String name = ""
+
+    JunkCodeConfig(String name) {
+        this.name = name
+    }
 }
