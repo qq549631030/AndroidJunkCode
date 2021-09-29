@@ -9,7 +9,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.github.qq549631030:android-junk-code:1.0.9"
+        classpath "com.github.qq549631030:android-junk-code:1.1.0"
         classpath 'com.vanniktech:gradle-maven-publish-plugin:0.18.0'
         classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:3.0.1"
 

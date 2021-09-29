@@ -11,7 +11,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.github.qq549631030:android-junk-code:1.0.9"
+        classpath "com.github.qq549631030:android-junk-code:1.1.0"
     }
 }
 ```
@@ -41,7 +41,7 @@ androidJunkCode {
 }
 ```
 
-**原configMap配置方式已过时，1.0.9版以后请使用variantConfig配置方式"**  
+**原configMap配置方式已过时，1.0.8版以后请使用variantConfig配置方式"**
 
 如果有多个变体共用一个配置可以这样做
 ```groovy
