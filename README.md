@@ -11,7 +11,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.github.qq549631030:android-junk-code:1.1.1"
+        classpath "com.github.qq549631030:android-junk-code:1.1.2"
     }
 }
 ```
