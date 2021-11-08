@@ -62,6 +62,13 @@ androidJunkCode {
 }
 ```
 
+如果APP开启了混淆，需要在混淆文件里配置
+
+```
+#cn.hx.plugin.ui为前面配置的packageBase
+-keep class cn.hx.plugin.ui.** {*;}
+```
+
 ### 生成文件所在目录
 build/generated/source/junk
 
