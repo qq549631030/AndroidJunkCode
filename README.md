@@ -86,3 +86,5 @@ build/generated/source/junk
 **项目代码占比 52.93%**
 
 ![方法总数](images/after_total.jpg)![项目方法数](images/after_project.jpg)
+
+安利我的一个新库[PriorityDialog](https://github.com/qq549631030/PriorityDialog)（带优先级对话框实现）
