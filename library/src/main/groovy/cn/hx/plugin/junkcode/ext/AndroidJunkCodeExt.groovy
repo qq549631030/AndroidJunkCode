@@ -4,7 +4,6 @@ import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 
 class AndroidJunkCodeExt {
-    Map<String, Closure<JunkCodeConfig>> configMap = [:]
 
     NamedDomainObjectContainer<JunkCodeConfig> variantConfig
 

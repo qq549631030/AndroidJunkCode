@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'android-junk-code'
+if (PLUGIN_ENABLE.toBoolean()) {
+    apply plugin: 'android-junk-code'
+}
 apply plugin: 'com.getkeepsafe.dexcount'
 apply plugin: 'kotlin-kapt'
 
@@ -30,23 +32,62 @@ android {
         checkReleaseBuilds false
         abortOnError false
     }
+
+    flavorDimensions 'PRODUCT'
+
+    productFlavors {
+        free {
+            dimension 'PRODUCT'
+        }
+        pro {
+            dimension 'PRODUCT'
+        }
+    }
+
+    applicationVariants.all { variant ->
+        def mergedFlavor = variant.mergedFlavor
+        switch (variant.flavorName) {
+            case "free":
+                switch (variant.buildType.name) {
+                    case "debug":
+                        mergedFlavor.manifestPlaceholders += ["API_KEY": "appKey1"]
+                        break
+                    case "release":
+                        mergedFlavor.manifestPlaceholders += ["API_KEY": "appKey2"]
+                        break
+                }
+                break
+            case "pro":
+                switch (variant.buildType.name) {
+                    case "debug":
+                        mergedFlavor.manifestPlaceholders += ["API_KEY": "appKey3"]
+                        break
+                    case "release":
+                        mergedFlavor.manifestPlaceholders += ["API_KEY": "appKey4"]
+                        break
+                }
+                break
+        }
+    }
 }
 
-androidJunkCode {
-    def config = {
-        packageBase = "cn.hx.plugin.ui"
-        packageCount = 30
-        activityCountPerPackage = 3
-        excludeActivityJavaFile = false
-        otherCountPerPackage = 50
-        methodCountPerClass = 20
-        resPrefix = "junk_"
-        drawableCount = 300
-        stringCount = 300
-    }
-    variantConfig {
-        debug config
-        release config
+if (PLUGIN_ENABLE.toBoolean()) {
+    androidJunkCode {
+        def config = {
+            packageBase = "cn.hx.plugin.ui"
+            packageCount = 30
+            activityCountPerPackage = 30
+            excludeActivityJavaFile = false
+            otherCountPerPackage = 50
+            methodCountPerClass = 20
+            resPrefix = "junk_"
+            drawableCount = 300
+            stringCount = 300
+        }
+        variantConfig {
+            freeRelease config
+            proRelease config
+        }
     }
 }
 

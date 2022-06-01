@@ -11,7 +11,7 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        def android = project.extensions.getByType(AppExtension)
+        def android = project.extensions.findByType(AppExtension)
         if (!android) {
             throw IllegalArgumentException("must apply this plugin after 'com.android.application'")
         }
@@ -23,27 +23,6 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
             def junkCodeConfig = generateJunkCodeExt.variantConfig.findByName(variantName)
             if (junkCodeConfig) {
                 createGenerateJunkCodeTask(project, android, variant, junkCodeConfig)
-            }
-        }
-
-        project.afterEvaluate {
-            android.applicationVariants.all { variant ->
-                def variantName = variant.name
-                def generateJunkCodeTaskName = "generate${variantName.capitalize()}JunkCode"
-                def generateJunkCodeTask = project.tasks.findByName(generateJunkCodeTaskName)
-                if (generateJunkCodeTask) {
-                    //已经用variantConfig方式配置过了
-                    return
-                }
-                def closure = generateJunkCodeExt.configMap[variantName]
-                if (closure) {
-                    def junkCodeConfig = new JunkCodeConfig()
-                    closure.delegate = junkCodeConfig
-                    closure.resolveStrategy = Closure.DELEGATE_FIRST
-                    closure.call()
-                    println("AndroidJunkCode: configMap配置方式已过时，请使用variantConfig配置方式")
-                    createGenerateJunkCodeTask(project, android, variant, junkCodeConfig)
-                }
             }
         }
     }
@@ -69,11 +48,7 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
         for (int i = variant.sourceSets.size() - 1; i >= 0; i--) {
             def sourceSet = variant.sourceSets[i]
             if (!sourceSet.manifestFile.exists()) {
-                android.sourceSets."${sourceSet.name}".manifest.srcFile(manifestFile.absolutePath)
-                def processMainManifestTask = project.tasks.findByName("process${variantName.capitalize()}MainManifest")
-                if (processMainManifestTask) {
-                    processMainManifestTask.dependsOn(generateJunkCodeTask)
-                }
+                sourceSet.manifest.srcFile(manifestFile.absolutePath)
                 break
             }
         }
