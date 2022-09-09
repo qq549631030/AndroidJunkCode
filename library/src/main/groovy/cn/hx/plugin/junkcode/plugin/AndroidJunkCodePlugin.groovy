@@ -48,15 +48,19 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
         for (int i = variant.sourceSets.size() - 1; i >= 0; i--) {
             def sourceSet = variant.sourceSets[i]
             if (!sourceSet.manifestFile.exists()) {
-                sourceSet.manifest.srcFile(manifestFile.absolutePath)
+                sourceSet.manifest.srcFile(project.files(manifestFile).builtBy(generateJunkCodeTask).singleFile)
+                project.tasks.all {
+                    if (name == "process${variantName.capitalize()}MainManifest") {
+                        dependsOn(generateJunkCodeTask)
+                    }
+                }
                 break
             }
         }
         if (variant.respondsTo("registerGeneratedResFolders")) {
-            generateJunkCodeTask.ext.generatedResFolders = project
+            variant.registerGeneratedResFolders(project
                     .files(resDir)
-                    .builtBy(generateJunkCodeTask)
-            variant.registerGeneratedResFolders(generateJunkCodeTask.generatedResFolders)
+                    .builtBy(generateJunkCodeTask))
             if (variant.hasProperty("mergeResourcesProvider")) {
                 variant.mergeResourcesProvider.configure { dependsOn(generateJunkCodeTask) }
             } else {
