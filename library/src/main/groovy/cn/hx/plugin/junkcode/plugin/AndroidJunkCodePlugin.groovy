@@ -48,12 +48,7 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
         for (int i = variant.sourceSets.size() - 1; i >= 0; i--) {
             def sourceSet = variant.sourceSets[i]
             if (!sourceSet.manifestFile.exists()) {
-                sourceSet.manifest.srcFile(project.files(manifestFile).builtBy(generateJunkCodeTask).singleFile)
-                project.tasks.all {
-                    if (name == "process${variantName.capitalize()}MainManifest") {
-                        dependsOn(generateJunkCodeTask)
-                    }
-                }
+                sourceSet.manifest.srcFile(manifestFile)
                 break
             }
         }

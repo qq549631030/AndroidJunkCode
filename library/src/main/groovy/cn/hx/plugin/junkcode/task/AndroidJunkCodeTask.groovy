@@ -48,7 +48,12 @@ class AndroidJunkCodeTask extends DefaultTask {
     void generateClasses() {
         def javaDir = new File(outDir, "java")
         for (int i = 0; i < config.packageCount; i++) {
-            String packageName = config.packageBase + "." + generateName(i)
+            String packageName
+            if (config.packageBase.isEmpty()) {
+                packageName = generateName(i)
+            } else {
+                packageName = config.packageBase + "." + generateName(i)
+            }
             //生成Activity
             for (int j = 0; j < config.activityCountPerPackage; j++) {
                 def activityPreName = generateName(j)
