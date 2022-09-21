@@ -34,11 +34,24 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
         def resDir = new File(dir, "res")
         def javaDir = new File(dir, "java")
         def manifestFile = new File(dir, "AndroidManifest.xml")
-        //从main/AndroidManifest.xml找到package name
-        def mainManifestFile = android.sourceSets.findByName("main").manifest.srcFile
-        def parser = new XmlParser()
-        def node = parser.parse(mainManifestFile)
-        def packageName = node.attribute("package")
+        def packageName = android.namespace//AGP 7.3+
+        if (!packageName) {//AGP under 7.3
+            //从AndroidManifest.xml找到package name
+            for (int i = 0; i < variant.sourceSets.size(); i++) {
+                def sourceSet = variant.sourceSets[i]
+                if (sourceSet.manifestFile.exists()) {
+                    def parser = new XmlParser()
+                    def node = parser.parse(sourceSet.manifestFile)
+                    packageName = node.attribute("package")
+                    if (packageName) {
+                        break
+                    }
+                }
+            }
+        }
+        if (!packageName) {
+            packageName = ""
+        }
         def generateJunkCodeTask = project.task(generateJunkCodeTaskName, type: AndroidJunkCodeTask) {
             config = junkCodeConfig
             manifestPackageName = packageName
