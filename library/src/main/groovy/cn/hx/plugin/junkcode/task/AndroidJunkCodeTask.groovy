@@ -11,7 +11,7 @@ import groovy.text.GStringTemplateEngine
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
-import org.gradle.api.tasks.OutputDirectories
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
 import javax.lang.model.element.Modifier
@@ -23,12 +23,12 @@ class AndroidJunkCodeTask extends DefaultTask {
     static abc = "abcdefghijklmnopqrstuvwxyz".toCharArray()
 
     @Nested
-    JunkCodeConfig config = new JunkCodeConfig()
+    JunkCodeConfig config
 
     @Input
-    String manifestPackageName = ""
+    String namespace
 
-    @OutputDirectories
+    @OutputDirectory
     File outDir
 
     @TaskAction
@@ -145,7 +145,7 @@ class AndroidJunkCodeTask extends DefaultTask {
                     .addModifiers(Modifier.PROTECTED)
                     .addParameter(bundleClassName, "savedInstanceState")
                     .addStatement("super.onCreate(savedInstanceState)")
-                    .addStatement("setContentView(\$T.layout.${layoutName})", ClassName.get(manifestPackageName, "R"))
+                    .addStatement("setContentView(\$T.layout.${layoutName})", ClassName.get(namespace, "R"))
                     .build())
             //其它方法
             for (int j = 0; j < config.methodCountPerClass; j++) {
