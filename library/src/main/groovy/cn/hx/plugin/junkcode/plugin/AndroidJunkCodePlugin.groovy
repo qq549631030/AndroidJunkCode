@@ -20,7 +20,7 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
             def junkCodeConfig = generateJunkCodeExt.variantConfig.findByName(variantName)
             if (junkCodeConfig) {
                 def junkCodeNamespace = ""
-                if (android.hasProperty("namespace")) {//AGP 7.3+
+                if (android.hasProperty("namespace") && android.namespace) {//AGP 4.2.0+
                     junkCodeNamespace = android.namespace
                 } else {
                     //从AndroidManifest.xml找到package name
@@ -38,7 +38,7 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
                 }
                 def junkCodeOutDir = new File(project.buildDir, "generated/source/junk/$variantName")
                 def generateJunkCodeTaskName = "generate${variantName.capitalize()}JunkCode"
-                def generateJunkCodeTask = project.tasks.create(generateJunkCodeTaskName, AndroidJunkCodeTask){
+                def generateJunkCodeTask = project.tasks.create(generateJunkCodeTaskName, AndroidJunkCodeTask) {
                     config = junkCodeConfig
                     namespace = junkCodeNamespace
                     outDir = junkCodeOutDir

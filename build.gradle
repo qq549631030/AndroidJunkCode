@@ -10,8 +10,9 @@ buildscript {
         classpath 'com.android.tools.build:gradle:4.2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:3.0.1"
-//        classpath project(":library")
-        classpath "com.github.qq549631030:android-junk-code:1.1.4"
+        if (PLUGIN_ENABLE.toBoolean()) {
+            classpath "com.github.qq549631030:android-junk-code:1.1.5"
+        }
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
