@@ -21,6 +21,7 @@ class AndroidJunkCodeTask extends DefaultTask {
     static def random = new Random()
 
     static abc = "abcdefghijklmnopqrstuvwxyz".toCharArray()
+    static color = "0123456789abcdef".toCharArray()
 
     @Nested
     JunkCodeConfig config
@@ -192,7 +193,7 @@ class AndroidJunkCodeTask extends DefaultTask {
         FileWriter writer
         try {
             writer = new FileWriter(drawableFile)
-            def template = ResTemplate.DRAWABLE
+            def template = String.format(ResTemplate.DRAWABLE, generateColor())
             writer.write(template.toString())
         } catch (Exception e) {
             e.printStackTrace()
@@ -219,7 +220,7 @@ class AndroidJunkCodeTask extends DefaultTask {
         FileWriter writer
         try {
             writer = new FileWriter(layoutFile)
-            def template = ResTemplate.LAYOUT_TEMPLATE
+            def template = String.format(ResTemplate.LAYOUT_TEMPLATE, generateId())
             writer.write(template.toString())
         } catch (Exception e) {
             e.printStackTrace()
@@ -383,6 +384,30 @@ class AndroidJunkCodeTask extends DefaultTask {
             }
         }
         sb.append(index.toString())
+        return sb.toString()
+    }
+
+    /**
+     * 生成颜色代码
+     * @return
+     */
+    static String generateColor() {
+        def sb = new StringBuffer()
+        sb.append("#")
+        for (i in 0..5) {
+            sb.append(color[random.nextInt(color.size())])
+        }
+        return sb.toString()
+    }
+    /**
+     * 生成id代码
+     * @return
+     */
+    static String generateId() {
+        def sb = new StringBuffer()
+        for (i in 0..5) {
+            sb.append(abc[random.nextInt(abc.size())])
+        }
         return sb.toString()
     }
 }
