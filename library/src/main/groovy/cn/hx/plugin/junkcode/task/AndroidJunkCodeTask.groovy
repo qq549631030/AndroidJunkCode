@@ -1,13 +1,11 @@
 package cn.hx.plugin.junkcode.task
 
 import cn.hx.plugin.junkcode.ext.JunkCodeConfig
-import cn.hx.plugin.junkcode.template.ManifestTemplate
 import cn.hx.plugin.junkcode.template.ResTemplate
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeSpec
-import groovy.text.GStringTemplateEngine
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
@@ -32,11 +30,16 @@ class AndroidJunkCodeTask extends DefaultTask {
     @OutputDirectory
     File outDir
 
+    private List<String> activityList = new ArrayList<>()
+    private List<String> stringList = new ArrayList<>()
+
     @TaskAction
     void generateJunkCode() {
         if (outDir.exists()) {
             outDir.deleteDir()
         }
+        activityList.clear()
+        stringList.clear()
         //通过成类
         generateClasses()
         //生成资源
@@ -75,6 +78,8 @@ class AndroidJunkCodeTask extends DefaultTask {
                 fileBuilder.build().writeTo(javaDir)
             }
         }
+        //所有Activity生成完了
+        generateManifest()
     }
 
     /**
@@ -158,7 +163,7 @@ class AndroidJunkCodeTask extends DefaultTask {
             def fileBuilder = JavaFile.builder(packageName, typeBuilder.build())
             fileBuilder.build().writeTo(javaDir)
         }
-        addToManifestByFileIo(className, packageName)
+        activityList.add(packageName + "." + className)
     }
 
     /**
@@ -172,10 +177,9 @@ class AndroidJunkCodeTask extends DefaultTask {
         }
         //生成string
         for (int i = 0; i < config.stringCount; i++) {
-            def name = "${config.resPrefix.toLowerCase()}${generateName(i)}"
-            def value = name
-            addStringByFileIo(name, value)
+            stringList.add("${config.resPrefix.toLowerCase()}${generateName(i)}")
         }
+        generateStringsFile()
     }
 
     /**
@@ -186,9 +190,6 @@ class AndroidJunkCodeTask extends DefaultTask {
         def drawableFile = new File(outDir, "res/drawable/${drawableName}.xml")
         if (!drawableFile.getParentFile().exists()) {
             drawableFile.getParentFile().mkdirs()
-        }
-        if (!drawableFile.exists()) {
-            drawableFile.createNewFile()
         }
         FileWriter writer
         try {
@@ -214,9 +215,6 @@ class AndroidJunkCodeTask extends DefaultTask {
         if (!layoutFile.getParentFile().exists()) {
             layoutFile.getParentFile().mkdirs()
         }
-        if (!layoutFile.exists()) {
-            layoutFile.createNewFile()
-        }
         FileWriter writer
         try {
             writer = new FileWriter(layoutFile)
@@ -233,59 +231,28 @@ class AndroidJunkCodeTask extends DefaultTask {
 
 
     /**
-     * 通过文件读写流的方式将新创建的Activity加入清单文件
-     *
-     * @param activityName
-     * @param packageName
+     * 生成Manifest
      */
-    void addToManifestByFileIo(String activityName, String packageName) {
+    void generateManifest() {
         def manifestFile = new File(outDir, "AndroidManifest.xml")
         if (!manifestFile.getParentFile().exists()) {
             manifestFile.getParentFile().mkdirs()
         }
-        if (!manifestFile.exists()) {
-            def template = ManifestTemplate.TEMPLATE
-            FileWriter writer
-            try {
-                writer = new FileWriter(manifestFile)
-                writer.write(template.toString())
-            } catch (Exception e) {
-                e.printStackTrace()
-            } finally {
-                if (writer != null) {
-                    writer.close()
-                }
-            }
+        StringBuilder sb = new StringBuilder()
+        sb.append("<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n")
+        sb.append("    <application>\n")
+        for (i in 0..<activityList.size()) {
+            sb.append("        <activity android:name=\"${activityList.get(i)}\"/>\n")
         }
-        FileReader reader
+        sb.append("    </application>\n")
+        sb.append("</manifest>")
         FileWriter writer
         try {
-            reader = new FileReader(manifestFile)
-            StringBuilder sb = new StringBuilder()
-            // 每一行的内容
-            String line = ""
-            while ((line = reader.readLine()) != null) {
-                // 找到application节点的末尾
-                if (line.contains("</application>")) {
-                    // 在application节点最后插入新创建的activity节点
-                    def binding = [
-                            packageName : packageName,
-                            activityName: activityName,
-                    ]
-                    def template = makeTemplate(ManifestTemplate.ACTIVITY_NODE, binding)
-                    sb.append(template.toString() + "\n")
-                }
-                sb.append(line + "\n")
-            }
-            String content = sb.toString()
             writer = new FileWriter(manifestFile)
-            writer.write(content)
+            writer.write(sb.toString())
         } catch (Exception e) {
             e.printStackTrace()
         } finally {
-            if (reader != null) {
-                reader.close()
-            }
             if (writer != null) {
                 writer.close()
             }
@@ -293,76 +260,30 @@ class AndroidJunkCodeTask extends DefaultTask {
     }
 
     /**
-     * 将string写入strings.xml
-     * @param name
-     * @param value
+     * 生成strings.xml
      */
-    void addStringByFileIo(String name, String value) {
-        //生成string
+    void generateStringsFile() {
         def stringFile = new File(outDir, "res/values/strings.xml")
         if (!stringFile.getParentFile().exists()) {
             stringFile.getParentFile().mkdirs()
         }
-        if (!stringFile.exists()) {
-            stringFile.createNewFile()
-            FileWriter writer
-            try {
-                writer = new FileWriter(stringFile)
-                def template = ResTemplate.TEMPLATE
-                writer.write(template.toString())
-            } catch (Exception e) {
-                e.printStackTrace()
-            } finally {
-                if (writer != null) {
-                    writer.close()
-                }
-            }
+        StringBuilder sb = new StringBuilder()
+        sb.append("<resources>\n")
+        for (i in 0..<stringList.size()) {
+            sb.append("<string name=\"${stringList.get(i)}\">${stringList.get(i)}</string>\n")
         }
-        FileReader reader
+        sb.append("</resources>\n")
         FileWriter writer
         try {
-            reader = new FileReader(stringFile)
-            StringBuilder sb = new StringBuilder()
-            // 每一行的内容
-            String line = ""
-            while ((line = reader.readLine()) != null) {
-                // 找到resources节点的末尾
-                if (line.contains("</resources>")) {
-                    // 在resources节点最后插入新创建的string节点
-                    def binding = [
-                            stringName : name,
-                            stringValue: value,
-                    ]
-                    def template = makeTemplate(ResTemplate.STRING_NODE, binding)
-                    sb.append(template.toString() + "\n")
-                }
-                sb.append(line + "\n")
-            }
-            String content = sb.toString()
             writer = new FileWriter(stringFile)
-            writer.write(content)
+            writer.write(sb.toString())
         } catch (Exception e) {
             e.printStackTrace()
         } finally {
-            if (reader != null) {
-                reader.close()
-            }
             if (writer != null) {
                 writer.close()
             }
         }
-    }
-
-    /**
-     * 加载模板
-     *
-     * @param template
-     * @param binding
-     * @return
-     */
-    static def makeTemplate(def template, def binding) {
-        def engine = new GStringTemplateEngine()
-        return engine.createTemplate(template).make(binding)
     }
 
     /**

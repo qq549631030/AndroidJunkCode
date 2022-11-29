@@ -1,8 +1,6 @@
 package cn.hx.plugin.junkcode.template
 
 class ResTemplate {
-    static final def TEMPLATE = '''<resources>
-</resources>'''
 
     static final def DRAWABLE = '''<vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
@@ -38,10 +36,6 @@ class ResTemplate {
         android:strokeWidth="1"
         android:strokeColor="#00000000" />
 </vector>'''
-
-
-    static final def STRING_NODE = '''    <string name="${stringName}">${stringValue}</string>'''
-
 
     static final def LAYOUT_TEMPLATE = '''<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
