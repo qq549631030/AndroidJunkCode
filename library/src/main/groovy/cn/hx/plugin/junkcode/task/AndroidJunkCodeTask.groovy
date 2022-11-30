@@ -13,6 +13,9 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
 import javax.lang.model.element.Modifier
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.nio.file.Path
 
 class AndroidJunkCodeTask extends DefaultTask {
 
@@ -50,7 +53,6 @@ class AndroidJunkCodeTask extends DefaultTask {
      * 生成java代码和AndroidManifest.xml
      */
     void generateClasses() {
-        def javaDir = new File(outDir, "java")
         for (int i = 0; i < config.packageCount; i++) {
             String packageName
             if (config.packageBase.isEmpty()) {
@@ -74,8 +76,8 @@ class AndroidJunkCodeTask extends DefaultTask {
                     generateMethods(methodBuilder)
                     typeBuilder.addMethod(methodBuilder.build())
                 }
-                def fileBuilder = JavaFile.builder(packageName, typeBuilder.build())
-                fileBuilder.build().writeTo(javaDir)
+                def javaFile = JavaFile.builder(packageName, typeBuilder.build()).build()
+                writeJavaFile(javaFile)
             }
         }
         //所有Activity生成完了
@@ -136,7 +138,6 @@ class AndroidJunkCodeTask extends DefaultTask {
      * @param activityPreName
      */
     void generateActivity(String packageName, String activityPreName) {
-        def javaDir = new File(outDir, "java")
         def className = activityPreName.capitalize() + "Activity"
         def layoutName = "${config.resPrefix.toLowerCase()}${packageName.replace(".", "_")}_activity_${activityPreName}"
         generateLayout(layoutName)
@@ -160,8 +161,8 @@ class AndroidJunkCodeTask extends DefaultTask {
                 generateMethods(methodBuilder)
                 typeBuilder.addMethod(methodBuilder.build())
             }
-            def fileBuilder = JavaFile.builder(packageName, typeBuilder.build())
-            fileBuilder.build().writeTo(javaDir)
+            def javaFile = JavaFile.builder(packageName, typeBuilder.build()).build()
+            writeJavaFile(javaFile)
         }
         activityList.add(packageName + "." + className)
     }
@@ -188,21 +189,8 @@ class AndroidJunkCodeTask extends DefaultTask {
      */
     void generateDrawable(String drawableName) {
         def drawableFile = new File(outDir, "res/drawable/${drawableName}.xml")
-        if (!drawableFile.getParentFile().exists()) {
-            drawableFile.getParentFile().mkdirs()
-        }
-        FileWriter writer
-        try {
-            writer = new FileWriter(drawableFile)
-            def template = String.format(ResTemplate.DRAWABLE, generateColor())
-            writer.write(template.toString())
-        } catch (Exception e) {
-            e.printStackTrace()
-        } finally {
-            if (writer != null) {
-                writer.close()
-            }
-        }
+        def drawableStr = String.format(ResTemplate.DRAWABLE, generateColor())
+        writeStringToFile(drawableFile, drawableStr)
     }
 
 
@@ -212,21 +200,8 @@ class AndroidJunkCodeTask extends DefaultTask {
      */
     void generateLayout(String layoutName) {
         def layoutFile = new File(outDir, "res/layout/${layoutName}.xml")
-        if (!layoutFile.getParentFile().exists()) {
-            layoutFile.getParentFile().mkdirs()
-        }
-        FileWriter writer
-        try {
-            writer = new FileWriter(layoutFile)
-            def template = String.format(ResTemplate.LAYOUT_TEMPLATE, generateId())
-            writer.write(template.toString())
-        } catch (Exception e) {
-            e.printStackTrace()
-        } finally {
-            if (writer != null) {
-                writer.close()
-            }
-        }
+        def layoutStr = String.format(ResTemplate.LAYOUT_TEMPLATE, generateId())
+        writeStringToFile(layoutFile, layoutStr)
     }
 
 
@@ -235,9 +210,6 @@ class AndroidJunkCodeTask extends DefaultTask {
      */
     void generateManifest() {
         def manifestFile = new File(outDir, "AndroidManifest.xml")
-        if (!manifestFile.getParentFile().exists()) {
-            manifestFile.getParentFile().mkdirs()
-        }
         StringBuilder sb = new StringBuilder()
         sb.append("<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n")
         sb.append("    <application>\n")
@@ -246,17 +218,7 @@ class AndroidJunkCodeTask extends DefaultTask {
         }
         sb.append("    </application>\n")
         sb.append("</manifest>")
-        FileWriter writer
-        try {
-            writer = new FileWriter(manifestFile)
-            writer.write(sb.toString())
-        } catch (Exception e) {
-            e.printStackTrace()
-        } finally {
-            if (writer != null) {
-                writer.close()
-            }
-        }
+        writeStringToFile(manifestFile, sb.toString())
     }
 
     /**
@@ -264,19 +226,36 @@ class AndroidJunkCodeTask extends DefaultTask {
      */
     void generateStringsFile() {
         def stringFile = new File(outDir, "res/values/strings.xml")
-        if (!stringFile.getParentFile().exists()) {
-            stringFile.getParentFile().mkdirs()
-        }
         StringBuilder sb = new StringBuilder()
         sb.append("<resources>\n")
         for (i in 0..<stringList.size()) {
             sb.append("<string name=\"${stringList.get(i)}\">${stringList.get(i)}</string>\n")
         }
         sb.append("</resources>\n")
+        writeStringToFile(stringFile, sb.toString())
+    }
+
+    private void writeJavaFile(JavaFile javaFile) {
+        def outputDirectory = outDir.toPath()
+        outputDirectory.resolve("java")
+        if (!javaFile.packageName.isEmpty()) {
+            for (String packageComponent : javaFile.packageName.split("\\.")) {
+                outputDirectory = outputDirectory.resolve(packageComponent);
+            }
+            Files.createDirectories(outputDirectory);
+        }
+        Path outputPath = outputDirectory.resolve(javaFile.typeSpec.name + ".java");
+        writeStringToFile(outputPath.toFile(), javaFile.toString())
+    }
+
+    private static void writeStringToFile(File file, String data) {
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs()
+        }
         FileWriter writer
         try {
-            writer = new FileWriter(stringFile)
-            writer.write(sb.toString())
+            writer = new FileWriter(file, Charset.forName("UTF-8"))
+            writer.write(data)
         } catch (Exception e) {
             e.printStackTrace()
         } finally {
@@ -292,7 +271,7 @@ class AndroidJunkCodeTask extends DefaultTask {
      * @return
      */
     static String generateName(int index) {
-        def sb = new StringBuffer()
+        def sb = new StringBuilder()
         for (i in 0..4) {
             sb.append(abc[random.nextInt(abc.size())])
         }
@@ -313,7 +292,7 @@ class AndroidJunkCodeTask extends DefaultTask {
      * @return
      */
     static String generateColor() {
-        def sb = new StringBuffer()
+        def sb = new StringBuilder()
         sb.append("#")
         for (i in 0..5) {
             sb.append(color[random.nextInt(color.size())])
@@ -325,7 +304,7 @@ class AndroidJunkCodeTask extends DefaultTask {
      * @return
      */
     static String generateId() {
-        def sb = new StringBuffer()
+        def sb = new StringBuilder()
         for (i in 0..5) {
             sb.append(abc[random.nextInt(abc.size())])
         }
