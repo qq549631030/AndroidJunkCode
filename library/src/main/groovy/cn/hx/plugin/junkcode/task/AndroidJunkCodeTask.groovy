@@ -236,8 +236,7 @@ class AndroidJunkCodeTask extends DefaultTask {
     }
 
     private void writeJavaFile(JavaFile javaFile) {
-        def outputDirectory = outDir.toPath()
-        outputDirectory.resolve("java")
+        def outputDirectory = new File(outDir, "java").toPath()
         if (!javaFile.packageName.isEmpty()) {
             for (String packageComponent : javaFile.packageName.split("\\.")) {
                 outputDirectory = outputDirectory.resolve(packageComponent);
