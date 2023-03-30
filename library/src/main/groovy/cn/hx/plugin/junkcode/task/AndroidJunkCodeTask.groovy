@@ -181,6 +181,7 @@ class AndroidJunkCodeTask extends DefaultTask {
             stringList.add("${config.resPrefix.toLowerCase()}${generateName(i)}")
         }
         generateStringsFile()
+        generateKeep()
     }
 
     /**
@@ -233,6 +234,14 @@ class AndroidJunkCodeTask extends DefaultTask {
         }
         sb.append("</resources>\n")
         writeStringToFile(stringFile, sb.toString())
+    }
+
+    void generateKeep() {
+        def keepFile = new File(outDir, "res/raw/keep.xml")
+        StringBuilder sb = new StringBuilder()
+        sb.append("<resources xmlns:tools=\"http://schemas.android.com/tools\"\n" +
+                "    tools:keep=\"@layout/${config.resPrefix}*, @drawable/${config.resPrefix}*\" />\n")
+        writeStringToFile(keepFile, sb.toString())
     }
 
     private void writeJavaFile(JavaFile javaFile) {
