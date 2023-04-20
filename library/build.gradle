@@ -9,14 +9,22 @@ buildscript {
 }
 
 apply plugin: 'groovy'
+apply plugin: 'kotlin'
+apply plugin: 'java-gradle-plugin'
 apply plugin: "com.vanniktech.maven.publish"
 
 java {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
 }
+compileGroovy {
+    dependsOn tasks.getByPath('compileKotlin')
+    classpath += files(compileKotlin.destinationDirectory.get())
+}
 
 dependencies {
     implementation gradleApi()
+    implementation 'com.squareup:kotlinpoet:1.13.0'
+    implementation 'com.squareup:kotlinpoet-metadata:1.13.0'
     implementation 'com.squareup:javapoet:1.13.0'
 }

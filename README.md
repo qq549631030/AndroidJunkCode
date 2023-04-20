@@ -25,15 +25,15 @@ apply plugin: 'android-junk-code'
 androidJunkCode {
     variantConfig {
         release {//变体名称，如果没有设置productFlavors就是buildType名称，如果有设置productFlavors就是flavor+buildType，例如（freeRelease、proRelease）
-            packageBase = "cn.hx.plugin.ui"  //生成java类根包名
-            packageCount = 30 //生成包数量
-            activityCountPerPackage = 3 //每个包下生成Activity类数量
-            excludeActivityJavaFile = false //是否排除生成Activity的Java文件,默认false(layout和写入AndroidManifest.xml还会执行)，主要用于处理类似神策全埋点编译过慢问题
-            otherCountPerPackage = 50  //每个包下生成其它类的数量
-            methodCountPerClass = 20  //每个类下生成方法数量
-            resPrefix = "junk_"  //生成的layout、drawable、string等资源名前缀
-            drawableCount = 300  //生成drawable资源数量
-            stringCount = 300  //生成string数量
+            packageBase = 'cn.hx.plugin.ui,com.aa.model,aa.web'  //生成 java 或者 kotlin 类根包名,逗号分割
+            packageCount = 12 //生成包最大数量
+            activityCountPerPackage = 30 //每个包下生成 Activity 类最大数量
+            excludeActivityJavaFile = false//是否排除生成 Activity 的文件,默认 false(layout 和写入 AndroidManifest.xml 还会执行)，主要用于处理类似神策全埋点编译过慢问题
+            otherCountPerPackage = 50  //每个包下生成其它类的最大数量
+            methodCountPerClass = 50  //每个类下生成方法最大数量
+            resPrefix = "pp_"  //生成的 layout、drawable、string 等资源名前缀
+            drawableCount = 200  //生成 drawable 资源最大数量
+            stringCount = 200  //生成 string 最大数量
         }
     }
 }

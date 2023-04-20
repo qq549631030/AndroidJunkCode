@@ -2,6 +2,7 @@ package cn.hx.plugin.junkcode.ext
 
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
+import junkcode.ktplugin.JunkCodeConfig
 
 class AndroidJunkCodeExt {
 
