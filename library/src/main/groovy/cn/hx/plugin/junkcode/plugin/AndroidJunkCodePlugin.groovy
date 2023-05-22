@@ -49,11 +49,12 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
                     def sourceSet = variant.sourceSets[i]
                     if (!sourceSet.manifestFile.exists()) {
                         sourceSet.manifest.srcFile(manifestFile)
-                        def processManifestTaskProvider = project.tasks.named("process${variantName.capitalize()}MainManifest")
-                        if (processManifestTaskProvider) {
-                            processManifestTaskProvider.configure {
-                                it.dependsOn(generateJunkCodeTask)
-                            }
+                        def processManifestTask = project.tasks.findByName("process${variantName.capitalize()}MainManifest")//AGP 4.1.0+
+                        if (processManifestTask == null) {
+                            processManifestTask = project.tasks.findByName("process${variantName.capitalize()}Manifest")
+                        }
+                        if (processManifestTask) {
+                            processManifestTask.dependsOn(generateJunkCodeTask)
                         }
                         break
                     }
