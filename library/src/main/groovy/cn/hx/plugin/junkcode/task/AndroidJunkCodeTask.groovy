@@ -237,7 +237,7 @@ class AndroidJunkCodeTask extends DefaultTask {
     }
 
     void generateKeep() {
-        def keepFile = new File(outDir, "res/raw/keep.xml")
+        def keepFile = new File(outDir, "res/raw/android_junk_code_keep.xml")
         StringBuilder sb = new StringBuilder()
         sb.append("<resources xmlns:tools=\"http://schemas.android.com/tools\"\n" +
                 "    tools:keep=\"@layout/${config.resPrefix}*, @drawable/${config.resPrefix}*\" />\n")
