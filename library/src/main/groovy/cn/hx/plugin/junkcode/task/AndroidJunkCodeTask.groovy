@@ -13,7 +13,6 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
 import javax.lang.model.element.Modifier
-import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -262,7 +261,7 @@ class AndroidJunkCodeTask extends DefaultTask {
         }
         FileWriter writer
         try {
-            writer = new FileWriter(file, Charset.forName("UTF-8"))
+            writer = new FileWriter(file)
             writer.write(data)
         } catch (Exception e) {
             e.printStackTrace()
