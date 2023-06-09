@@ -13,6 +13,8 @@ assignees: ''
 
 **AGP版本**：
 
+**JDK版本**：
+
 **productFlavors配置**：
 
 **androidJunkCode配置**： 
