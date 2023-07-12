@@ -33,43 +33,6 @@ android {
         checkReleaseBuilds false
         abortOnError false
     }
-
-    flavorDimensions 'PRODUCT'
-
-    productFlavors {
-        free {
-            dimension 'PRODUCT'
-        }
-        pro {
-            dimension 'PRODUCT'
-        }
-    }
-
-    applicationVariants.all { variant ->
-        def mergedFlavor = variant.mergedFlavor
-        switch (variant.flavorName) {
-            case "free":
-                switch (variant.buildType.name) {
-                    case "debug":
-                        mergedFlavor.manifestPlaceholders += ["API_KEY": "appKey1"]
-                        break
-                    case "release":
-                        mergedFlavor.manifestPlaceholders += ["API_KEY": "appKey2"]
-                        break
-                }
-                break
-            case "pro":
-                switch (variant.buildType.name) {
-                    case "debug":
-                        mergedFlavor.manifestPlaceholders += ["API_KEY": "appKey3"]
-                        break
-                    case "release":
-                        mergedFlavor.manifestPlaceholders += ["API_KEY": "appKey4"]
-                        break
-                }
-                break
-        }
-    }
 }
 
 if (PLUGIN_ENABLE.toBoolean()) {
@@ -86,14 +49,13 @@ if (PLUGIN_ENABLE.toBoolean()) {
             stringCount = 300
         }
         variantConfig {
-            freeRelease config
-            proRelease config
+            debug config
+            release config
         }
     }
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.core:core-ktx:1.6.0'

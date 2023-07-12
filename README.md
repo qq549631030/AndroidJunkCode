@@ -24,7 +24,7 @@ apply plugin: 'android-junk-code'
 
 androidJunkCode {
     variantConfig {
-        release {//变体名称，如果没有设置productFlavors就是buildType名称，如果有设置productFlavors就是flavor+buildType，例如（freeRelease、proRelease）
+        release {//注意：这里的release是变体名称，如果没有设置productFlavors就是buildType名称，如果有设置productFlavors就是flavor+buildType，例如（freeRelease、proRelease）
             packageBase = "cn.hx.plugin.ui"  //生成java类根包名
             packageCount = 30 //生成包数量
             activityCountPerPackage = 3 //每个包下生成Activity类数量
@@ -54,7 +54,8 @@ androidJunkCode {
         stringCount = 300
     }
     variantConfig {
-        debug config
+        //注意：这里的debug,release为变体名称，如果没有设置productFlavors就是buildType名称，如果有设置productFlavors就是flavor+buildType，例如（freeRelease、proRelease）
+        debug config 
         release config
     }
 }
