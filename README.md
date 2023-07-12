@@ -1,10 +1,11 @@
-#  Android垃圾代码生成插件
+# Android垃圾代码生成插件
 
 此插件用于做马甲包时，减小马甲包与主包的代码相似度，避免被某些应用市场识别为马甲包。
 
 ### 使用方法
 
 根目录的build.gradle中：
+
 ```
 buildscript {
     repositories {
@@ -16,19 +17,21 @@ buildscript {
 }
 ```
 
-
 app目录的build.gradle模块中：
+
 ```groovy
 apply plugin: 'com.android.application'
 apply plugin: 'android-junk-code'
 
 androidJunkCode {
     variantConfig {
-        release {//注意：这里的release是变体名称，如果没有设置productFlavors就是buildType名称，如果有设置productFlavors就是flavor+buildType，例如（freeRelease、proRelease）
+        release {
+//注意：这里的release是变体名称，如果没有设置productFlavors就是buildType名称，如果有设置productFlavors就是flavor+buildType，例如（freeRelease、proRelease）
             packageBase = "cn.hx.plugin.ui"  //生成java类根包名
             packageCount = 30 //生成包数量
             activityCountPerPackage = 3 //每个包下生成Activity类数量
-            excludeActivityJavaFile = false //是否排除生成Activity的Java文件,默认false(layout和写入AndroidManifest.xml还会执行)，主要用于处理类似神策全埋点编译过慢问题
+            excludeActivityJavaFile = false
+            //是否排除生成Activity的Java文件,默认false(layout和写入AndroidManifest.xml还会执行)，主要用于处理类似神策全埋点编译过慢问题
             otherCountPerPackage = 50  //每个包下生成其它类的数量
             methodCountPerClass = 20  //每个类下生成方法数量
             resPrefix = "junk_"  //生成的layout、drawable、string等资源名前缀
@@ -40,6 +43,7 @@ androidJunkCode {
 ```
 
 如果有多个变体共用一个配置可以这样做
+
 ```groovy
 androidJunkCode {
     def config = {
@@ -52,10 +56,27 @@ androidJunkCode {
         resPrefix = "junk_"
         drawableCount = 300
         stringCount = 300
+
+        //如果不想用插件默认生成的代码，可通过下面实现自定义。注意，修改生成方式后必须先clean再build才生效
+        typeGenerator = { typeBuilder ->
+            //自定义类实现（类名已经实现随机，Activity类已经实现了onCreate，其它自己实现随机）
+            //注意设置了此实现将忽略methodGenerator
+            //TypeSpec.Builder用法请参考(https://github.com/square/javapoet)
+        }
+        methodGenerator = { methodBuilder ->
+            //自定义方法实现（方法名已经实现随机，其它自己实现随机）
+            //MethodSpec.Builder用法请参考(https://github.com/square/javapoet)
+        }
+        layoutGenerator = { stringBuilder ->
+            //自定义drawable实现（自己实现随机）
+        }
+        drawableGenerator = { stringBuilder ->
+            //自定义layout实现（自己实现随机）
+        }
     }
     variantConfig {
         //注意：这里的debug,release为变体名称，如果没有设置productFlavors就是buildType名称，如果有设置productFlavors就是flavor+buildType，例如（freeRelease、proRelease）
-        debug config 
+        debug config
         release config
     }
 }
@@ -67,10 +88,13 @@ androidJunkCode {
 #cn.hx.plugin.ui为前面配置的packageBase
 -keep class cn.hx.plugin.ui.** {*;}
 ```
+
 ### 打包
+
 执行配置变体的打包命令：assembleXXX（XXX是你配置的变体，如：assembleRelease、assembleFreeRelease）
 
 ### 生成文件所在目录
+
 build/generated/source/junk
 
 ### 使用插件[methodCount](https://github.com/KeepSafe/dexcount-gradle-plugin)对比
@@ -80,7 +104,6 @@ build/generated/source/junk
 **项目代码占比 0.13%**
 
 ![方法总数](images/before_total.jpg)![项目方法数](images/before_project.jpg)
-
 
 #### 加了垃圾代码
 

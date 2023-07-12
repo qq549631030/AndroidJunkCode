@@ -37,6 +37,7 @@ android {
 
 if (PLUGIN_ENABLE.toBoolean()) {
     androidJunkCode {
+        debug true
         def config = {
             packageBase = "cn.hx.plugin.ui"
             packageCount = 30

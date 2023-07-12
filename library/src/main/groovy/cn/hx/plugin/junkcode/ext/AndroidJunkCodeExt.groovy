@@ -5,6 +5,8 @@ import org.gradle.api.NamedDomainObjectContainer
 
 class AndroidJunkCodeExt {
 
+    boolean debug = false
+
     NamedDomainObjectContainer<JunkCodeConfig> variantConfig
 
     AndroidJunkCodeExt(NamedDomainObjectContainer<JunkCodeConfig> variantConfig) {

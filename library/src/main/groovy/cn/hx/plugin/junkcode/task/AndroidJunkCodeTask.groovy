@@ -68,12 +68,20 @@ class AndroidJunkCodeTask extends DefaultTask {
             for (int j = 0; j < config.otherCountPerPackage; j++) {
                 def className = generateName(j).capitalize()
                 def typeBuilder = TypeSpec.classBuilder(className)
-                typeBuilder.addModifiers(Modifier.PUBLIC)
-                for (int k = 0; k < config.methodCountPerClass; k++) {
-                    def methodName = generateName(k)
-                    def methodBuilder = MethodSpec.methodBuilder(methodName)
-                    generateMethods(methodBuilder)
-                    typeBuilder.addMethod(methodBuilder.build())
+                if (config.typeGenerator) {
+                    config.typeGenerator.execute(typeBuilder)
+                } else {
+                    typeBuilder.addModifiers(Modifier.PUBLIC)
+                    for (int k = 0; k < config.methodCountPerClass; k++) {
+                        def methodName = generateName(k)
+                        def methodBuilder = MethodSpec.methodBuilder(methodName)
+                        if (config.methodGenerator) {
+                            config.methodGenerator.execute(methodBuilder)
+                        } else {
+                            generateMethods(methodBuilder)
+                        }
+                        typeBuilder.addMethod(methodBuilder.build())
+                    }
                 }
                 def javaFile = JavaFile.builder(packageName, typeBuilder.build()).build()
                 writeJavaFile(javaFile)
@@ -153,12 +161,20 @@ class AndroidJunkCodeTask extends DefaultTask {
                     .addStatement("super.onCreate(savedInstanceState)")
                     .addStatement("setContentView(\$T.layout.${layoutName})", ClassName.get(namespace, "R"))
                     .build())
-            //其它方法
-            for (int j = 0; j < config.methodCountPerClass; j++) {
-                def methodName = generateName(j)
-                def methodBuilder = MethodSpec.methodBuilder(methodName)
-                generateMethods(methodBuilder)
-                typeBuilder.addMethod(methodBuilder.build())
+            if (config.typeGenerator) {
+                config.typeGenerator.execute(typeBuilder)
+            } else {
+                //其它方法
+                for (int j = 0; j < config.methodCountPerClass; j++) {
+                    def methodName = generateName(j)
+                    def methodBuilder = MethodSpec.methodBuilder(methodName)
+                    if (config.methodGenerator) {
+                        config.methodGenerator.execute(methodBuilder)
+                    } else {
+                        generateMethods(methodBuilder)
+                    }
+                    typeBuilder.addMethod(methodBuilder.build())
+                }
             }
             def javaFile = JavaFile.builder(packageName, typeBuilder.build()).build()
             writeJavaFile(javaFile)
@@ -184,13 +200,19 @@ class AndroidJunkCodeTask extends DefaultTask {
     }
 
     /**
-     * 生成layout
-     * @param layoutName
+     * 生成drawable
+     * @param drawableName
      */
     void generateDrawable(String drawableName) {
         def drawableFile = new File(outDir, "res/drawable/${drawableName}.xml")
-        def drawableStr = String.format(ResTemplate.DRAWABLE, generateColor())
-        writeStringToFile(drawableFile, drawableStr)
+        if (config.drawableGenerator) {
+            def builder = new StringBuilder()
+            config.drawableGenerator.execute(builder)
+            writeStringToFile(drawableFile, builder.toString())
+        } else {
+            def drawableStr = String.format(ResTemplate.DRAWABLE, generateColor())
+            writeStringToFile(drawableFile, drawableStr)
+        }
     }
 
 
@@ -200,8 +222,14 @@ class AndroidJunkCodeTask extends DefaultTask {
      */
     void generateLayout(String layoutName) {
         def layoutFile = new File(outDir, "res/layout/${layoutName}.xml")
-        def layoutStr = String.format(ResTemplate.LAYOUT_TEMPLATE, generateId())
-        writeStringToFile(layoutFile, layoutStr)
+        if (config.layoutGenerator) {
+            def builder = new StringBuilder()
+            config.layoutGenerator.execute(builder)
+            writeStringToFile(layoutFile, builder.toString())
+        } else {
+            def layoutStr = String.format(ResTemplate.LAYOUT_TEMPLATE, generateId())
+            writeStringToFile(layoutFile, layoutStr)
+        }
     }
 
 

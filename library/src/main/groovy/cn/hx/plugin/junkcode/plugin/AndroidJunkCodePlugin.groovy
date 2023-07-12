@@ -18,6 +18,9 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
         android.applicationVariants.all { variant ->
             def variantName = variant.name
             def junkCodeConfig = generateJunkCodeExt.variantConfig.findByName(variantName)
+            if (generateJunkCodeExt.debug) {
+                println("AndroidJunkCode: generate code for variant $variantName? ${junkCodeConfig != null}")
+            }
             if (junkCodeConfig) {
                 def junkCodeNamespace = ""
                 if (android.hasProperty("namespace") && android.namespace) {//AGP 4.2.0+

@@ -1,5 +1,8 @@
 package cn.hx.plugin.junkcode.ext
 
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.TypeSpec
+import org.gradle.api.Action
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 
@@ -22,6 +25,18 @@ class JunkCodeConfig {
     int drawableCount = 0
     @Input
     int stringCount = 0
+
+    @Internal
+    Action<TypeSpec.Builder> typeGenerator = null
+
+    @Internal
+    Action<MethodSpec.Builder> methodGenerator = null
+
+    @Internal
+    Action<StringBuilder> layoutGenerator = null
+
+    @Internal
+    Action<StringBuilder> drawableGenerator = null
 
     @Internal
     String name = ""
