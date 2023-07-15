@@ -14,6 +14,13 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
         if (!android || !android.hasProperty("applicationVariants")) {
             throw IllegalArgumentException("must apply this plugin after 'com.android.application'")
         }
+        def androidComponents = project.extensions.findByName("androidComponents")
+        //AGP 7.4.0+
+        if (androidComponents && androidComponents.hasProperty("pluginVersion")
+                && (androidComponents.pluginVersion.major > 7 || androidComponents.pluginVersion.minor >= 4)) {
+            new NewVariantApiPlugin().apply(project)
+            return
+        }
         def generateJunkCodeExt = project.extensions.create("androidJunkCode", AndroidJunkCodeExt, project.container(JunkCodeConfig))
         android.applicationVariants.all { variant ->
             def variantName = variant.name
