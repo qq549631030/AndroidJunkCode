@@ -39,6 +39,9 @@ class JunkCodeConfig {
     Action<StringBuilder> drawableGenerator = null
 
     @Internal
+    Action<StringBuilder> stringGenerator = null
+
+    @Internal
     String name = ""
 
     JunkCodeConfig(String name) {
