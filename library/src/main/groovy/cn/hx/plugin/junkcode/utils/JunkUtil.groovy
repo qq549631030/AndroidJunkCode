@@ -316,6 +316,9 @@ class JunkUtil {
             keepName = fileNameBuilder.toString()
             keepContent = contentBuilder.toString()
         } else {
+            if (config.resPrefix.isEmpty()) {
+                return
+            }
             keepName = "android_junk_code_keep"
             keepContent = "<resources xmlns:tools=\"http://schemas.android.com/tools\"\n" +
                     "    tools:keep=\"@layout/${config.resPrefix}*, @drawable/${config.resPrefix}*\" />\n"

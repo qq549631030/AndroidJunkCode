@@ -31,26 +31,38 @@ abstract class AndroidJunkCodeTask extends DefaultTask {
     void generateJunkCode() {
         javaOutDir.deleteDir()
         resOutDir.deleteDir()
-        for (int i = 0; i < config.packageCount; i++) {
-            String packageName
-            if (config.packageCreator) {
-                def packageNameBuilder = new StringBuffer()
-                config.packageCreator.execute(new Tuple2(i, packageNameBuilder))
-                packageName = packageNameBuilder.toString()
-            } else {
-                if (config.packageBase.isEmpty()) {
-                    packageName = JunkUtil.generateName(i)
+        if (config.javaGenerator) {//自定义生成java逻辑
+            config.javaGenerator.execute(javaOutDir)
+        } else {
+            for (int i = 0; i < config.packageCount; i++) {
+                String packageName
+                if (config.packageCreator) {
+                    def packageNameBuilder = new StringBuffer()
+                    config.packageCreator.execute(new Tuple2(i, packageNameBuilder))
+                    packageName = packageNameBuilder.toString()
                 } else {
-                    packageName = config.packageBase + "." + JunkUtil.generateName(i)
+                    if (config.packageBase.isEmpty()) {
+                        packageName = JunkUtil.generateName(i)
+                    } else {
+                        packageName = config.packageBase + "." + JunkUtil.generateName(i)
+                    }
                 }
+                def list = JunkUtil.generateActivity(javaOutDir, resOutDir, namespace, packageName, config)
+                activityList.addAll(list)
+                JunkUtil.generateJava(javaOutDir, packageName, config)
             }
-            def list = JunkUtil.generateActivity(javaOutDir, resOutDir, namespace, packageName, config)
-            activityList.addAll(list)
-            JunkUtil.generateJava(javaOutDir, packageName, config)
         }
-        JunkUtil.generateManifest(manifestOutFile, activityList)
-        JunkUtil.generateDrawableFiles(resOutDir, config)
-        JunkUtil.generateStringsFile(resOutDir, config)
-        JunkUtil.generateKeep(resOutDir, config)
+        if (config.resGenerator) {//自定义生成res逻辑
+            config.resGenerator.execute(resOutDir)
+        } else {
+            JunkUtil.generateDrawableFiles(resOutDir, config)
+            JunkUtil.generateStringsFile(resOutDir, config)
+            JunkUtil.generateKeep(resOutDir, config)
+        }
+        if (config.manifestGenerator) {//自定义生成manifest逻辑
+            config.manifestGenerator.execute(manifestOutFile)
+        } else {
+            JunkUtil.generateManifest(manifestOutFile, activityList)
+        }
     }
 }

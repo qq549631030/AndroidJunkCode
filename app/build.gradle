@@ -68,6 +68,7 @@ if (PLUGIN_ENABLE.toBoolean()) {
             stringCount = 300
 
             //自定义生成包名(设置此项后packageBase将无效)
+            //注意，要把生成的包名加入混淆文件
             packageCreator = { tuple2 ->
                 //int:下标 [0,packageCount)
                 def index = tuple2.first
@@ -172,7 +173,7 @@ if (PLUGIN_ENABLE.toBoolean()) {
                 //例
                 fileNameBuilder.append("android_junk_code_keep")
                 contentBuilder.append( "<resources xmlns:tools=\"http://schemas.android.com/tools\"\n" +
-                        "    tools:keep=\"@layout/junk_*, @drawable/junk_*\" />\n")
+                        "    tools:keep=\"@layout/activity_*, @drawable/drawable*\" />\n")
             }
 
             //自定义类实现（类名已经实现随机，Activity类已经实现了onCreate，其它自己实现随机）

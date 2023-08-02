@@ -21,3 +21,4 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class cn.hx.plugin.ui.** {*;}
+-keep class cn.hx.package*.** {*;}

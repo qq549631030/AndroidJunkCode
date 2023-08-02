@@ -33,26 +33,38 @@ abstract class GenerateJunkCodeTask extends DefaultTask {
         def resDir = getResOutputFolder().get().asFile
         javaDir.deleteDir()
         resDir.deleteDir()
-        for (int i = 0; i < config.packageCount; i++) {
-            String packageName
-            if (config.packageCreator) {
-                def packageNameBuilder = new StringBuffer()
-                config.packageCreator.execute(new Tuple2(i, packageNameBuilder))
-                packageName = packageNameBuilder.toString()
-            } else {
-                if (config.packageBase.isEmpty()) {
-                    packageName = JunkUtil.generateName(i)
+        if (config.javaGenerator) {
+            config.javaGenerator.execute(javaDir)
+        } else {
+            for (int i = 0; i < config.packageCount; i++) {
+                String packageName
+                if (config.packageCreator) {
+                    def packageNameBuilder = new StringBuffer()
+                    config.packageCreator.execute(new Tuple2(i, packageNameBuilder))
+                    packageName = packageNameBuilder.toString()
                 } else {
-                    packageName = config.packageBase + "." + JunkUtil.generateName(i)
+                    if (config.packageBase.isEmpty()) {
+                        packageName = JunkUtil.generateName(i)
+                    } else {
+                        packageName = config.packageBase + "." + JunkUtil.generateName(i)
+                    }
                 }
+                def list = JunkUtil.generateActivity(javaDir, resDir, namespace, packageName, config)
+                activityList.addAll(list)
+                JunkUtil.generateJava(javaDir, packageName, config)
             }
-            def list = JunkUtil.generateActivity(javaDir, resDir, namespace, packageName, config)
-            activityList.addAll(list)
-            JunkUtil.generateJava(javaDir, packageName, config)
         }
-        JunkUtil.generateManifest(getManifestOutputFile().get().asFile, activityList)
-        JunkUtil.generateDrawableFiles(resDir, config)
-        JunkUtil.generateStringsFile(resDir, config)
-        JunkUtil.generateKeep(resDir, config)
+        if (config.resGenerator) {
+            config.resGenerator.execute(resOutDir)
+        } else {
+            JunkUtil.generateDrawableFiles(resDir, config)
+            JunkUtil.generateStringsFile(resDir, config)
+            JunkUtil.generateKeep(resDir, config)
+        }
+        if (config.manifestGenerator) {
+            config.manifestGenerator.execute(getManifestOutputFile().get().asFile)
+        } else {
+            JunkUtil.generateManifest(getManifestOutputFile().get().asFile, activityList)
+        }
     }
 }

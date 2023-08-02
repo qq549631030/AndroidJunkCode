@@ -62,6 +62,15 @@ class JunkCodeConfig {
     Action<Tuple2<StringBuilder, StringBuilder>> keepCreator = null
 
     @Internal
+    Action<File> javaGenerator = null
+
+    @Internal
+    Action<File> resGenerator = null
+
+    @Internal
+    Action<File> manifestGenerator = null
+
+    @Internal
     String name = ""
 
     JunkCodeConfig(String name) {
