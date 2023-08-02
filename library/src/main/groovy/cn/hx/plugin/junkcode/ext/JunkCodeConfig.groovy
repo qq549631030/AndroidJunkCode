@@ -32,14 +32,34 @@ class JunkCodeConfig {
     @Internal
     Action<MethodSpec.Builder> methodGenerator = null
 
+    @Deprecated
     @Internal
     Action<StringBuilder> layoutGenerator = null
 
+    @Deprecated
     @Internal
     Action<StringBuilder> drawableGenerator = null
 
     @Internal
-    Action<StringBuilder> stringGenerator = null
+    Action<Tuple2<Integer, StringBuilder>> packageCreator = null
+
+    @Internal
+    Action<Tuple4<Integer, StringBuilder, StringBuilder, StringBuilder>> activityCreator = null
+
+    @Internal
+    Action<Tuple2<Integer, StringBuilder>> classNameCreator = null
+
+    @Internal
+    Action<Tuple2<Integer, StringBuilder>> methodNameCreator = null
+
+    @Internal
+    Action<Tuple3<Integer, StringBuilder, StringBuilder>> drawableCreator = null
+
+    @Internal
+    Action<Tuple3<Integer, StringBuilder, StringBuilder>> stringCreator = null
+
+    @Internal
+    Action<Tuple2<StringBuilder, StringBuilder>> keepCreator = null
 
     @Internal
     String name = ""

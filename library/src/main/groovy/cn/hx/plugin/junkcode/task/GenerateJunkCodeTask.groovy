@@ -35,10 +35,16 @@ abstract class GenerateJunkCodeTask extends DefaultTask {
         resDir.deleteDir()
         for (int i = 0; i < config.packageCount; i++) {
             String packageName
-            if (config.packageBase.isEmpty()) {
-                packageName = JunkUtil.generateName(i)
+            if (config.packageCreator) {
+                def packageNameBuilder = new StringBuffer()
+                config.packageCreator.execute(new Tuple2(i, packageNameBuilder))
+                packageName = packageNameBuilder.toString()
             } else {
-                packageName = config.packageBase + "." + JunkUtil.generateName(i)
+                if (config.packageBase.isEmpty()) {
+                    packageName = JunkUtil.generateName(i)
+                } else {
+                    packageName = config.packageBase + "." + JunkUtil.generateName(i)
+                }
             }
             def list = JunkUtil.generateActivity(javaDir, resDir, namespace, packageName, config)
             activityList.addAll(list)

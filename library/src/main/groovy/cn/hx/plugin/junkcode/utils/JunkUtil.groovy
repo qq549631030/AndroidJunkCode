@@ -118,10 +118,22 @@ class JunkUtil {
     static List<String> generateActivity(File javaDir, File resDir, String namespace, String packageName, JunkCodeConfig config) {
         def activityList = new ArrayList()
         for (int i = 0; i < config.activityCountPerPackage; i++) {
-            def activityPreName = generateName(i)
-            def className = activityPreName.capitalize() + "Activity"
-            def layoutName = "${config.resPrefix.toLowerCase()}${packageName.replace(".", "_")}_activity_${activityPreName}"
-            generateLayout(resDir, layoutName, config)
+            def className
+            def layoutName
+            if (config.activityCreator) {
+                def activityNameBuilder = new StringBuilder()
+                def layoutNameBuilder = new StringBuilder()
+                def layoutContentBuilder = new StringBuilder()
+                config.activityCreator.execute(new Tuple4(i, activityNameBuilder, layoutNameBuilder, layoutContentBuilder))
+                className = activityNameBuilder.toString()
+                layoutName = layoutNameBuilder.toString()
+                writeStringToFile(new File(resDir, "layout/${layoutName}.xml"), layoutContentBuilder.toString())
+            } else {
+                def activityPreName = generateName(i)
+                className = activityPreName.capitalize() + "Activity"
+                layoutName = "${config.resPrefix.toLowerCase()}${packageName.replace(".", "_")}_activity_${activityPreName}"
+                generateLayout(resDir, layoutName, config)
+            }
             if (!config.excludeActivityJavaFile) {
                 def typeBuilder = TypeSpec.classBuilder(className)
                 typeBuilder.superclass(ClassName.get("android.app", "Activity"))
@@ -140,7 +152,14 @@ class JunkUtil {
                 } else {
                     //其它方法
                     for (int j = 0; j < config.methodCountPerClass; j++) {
-                        def methodName = generateName(j)
+                        def methodName
+                        if (config.methodNameCreator) {
+                            def methodNameBuilder = new StringBuilder()
+                            config.methodNameCreator.execute(new Tuple2(j, methodNameBuilder))
+                            methodName = methodNameBuilder.toString()
+                        } else {
+                            methodName = generateName(j)
+                        }
                         def methodBuilder = MethodSpec.methodBuilder(methodName)
                         if (config.methodGenerator) {
                             config.methodGenerator.execute(methodBuilder)
@@ -165,15 +184,29 @@ class JunkUtil {
      * @param config
      */
     static void generateJava(File javaDir, String packageName, JunkCodeConfig config) {
-        for (int j = 0; j < config.otherCountPerPackage; j++) {
-            def className = generateName(j).capitalize()
+        for (int i = 0; i < config.otherCountPerPackage; i++) {
+            def className
+            if (config.classNameCreator) {
+                def classNameBuilder = new StringBuilder()
+                config.classNameCreator.execute(new Tuple2(i, classNameBuilder))
+                className = classNameBuilder.toString()
+            } else {
+                className = generateName(i).capitalize()
+            }
             def typeBuilder = TypeSpec.classBuilder(className)
             if (config.typeGenerator) {
                 config.typeGenerator.execute(typeBuilder)
             } else {
                 typeBuilder.addModifiers(Modifier.PUBLIC)
-                for (int k = 0; k < config.methodCountPerClass; k++) {
-                    def methodName = generateName(k)
+                for (int j = 0; j < config.methodCountPerClass; j++) {
+                    def methodName
+                    if (config.methodNameCreator) {
+                        def methodNameBuilder = new StringBuilder()
+                        config.methodNameCreator.execute(new Tuple2(j, methodNameBuilder))
+                        methodName = methodNameBuilder.toString()
+                    } else {
+                        methodName = generateName(j)
+                    }
                     def methodBuilder = MethodSpec.methodBuilder(methodName)
                     if (config.methodGenerator) {
                         config.methodGenerator.execute(methodBuilder)
@@ -197,9 +230,9 @@ class JunkUtil {
     static void generateLayout(File resDir, String layoutName, JunkCodeConfig config) {
         def layoutFile = new File(resDir, "layout/${layoutName}.xml")
         if (config.layoutGenerator) {
-            def builder = new StringBuilder()
-            config.layoutGenerator.execute(builder)
-            writeStringToFile(layoutFile, builder.toString())
+            def contentBuilder = new StringBuilder()
+            config.layoutGenerator.execute(contentBuilder)
+            writeStringToFile(layoutFile, contentBuilder.toString())
         } else {
             def layoutStr = String.format(ResTemplate.LAYOUT_TEMPLATE, generateId())
             writeStringToFile(layoutFile, layoutStr)
@@ -212,16 +245,28 @@ class JunkUtil {
      * @param config
      */
     static void generateDrawableFiles(File resDir, JunkCodeConfig config) {
-        for (int i = 0; i < config.drawableCount; i++) {
-            def drawableName = "${config.resPrefix.toLowerCase()}${generateName(i)}"
-            def drawableFile = new File(resDir, "drawable/${drawableName}.xml")
-            if (config.drawableGenerator) {
-                def builder = new StringBuilder()
-                config.drawableGenerator.execute(builder)
-                writeStringToFile(drawableFile, builder.toString())
-            } else {
-                def drawableStr = String.format(ResTemplate.DRAWABLE, generateColor())
-                writeStringToFile(drawableFile, drawableStr)
+        if (config.drawableGenerator) {
+            def contentBuilder = new StringBuilder()
+            for (int i = 0; i < config.drawableCount; i++) {
+                def drawableName = "${config.resPrefix.toLowerCase()}${generateName(i)}"
+                contentBuilder.setLength(0)
+                config.drawableGenerator.execute(contentBuilder)
+                writeStringToFile(new File(resDir, "drawable/${drawableName}.xml"), contentBuilder.toString())
+            }
+        } else if (config.drawableCreator) {
+            def fileNameBuilder = new StringBuilder()
+            def contentBuilder = new StringBuilder()
+            for (int i = 0; i < config.drawableCount; i++) {
+                fileNameBuilder.setLength(0)
+                contentBuilder.setLength(0)
+                config.drawableCreator.execute(new Tuple3(i, fileNameBuilder, contentBuilder))
+                def drawableName = fileNameBuilder.toString()
+                writeStringToFile(new File(resDir, "drawable/${drawableName}.xml"), contentBuilder.toString())
+            }
+        } else {
+            for (int i = 0; i < config.drawableCount; i++) {
+                def drawableName = "${config.resPrefix.toLowerCase()}${generateName(i)}"
+                writeStringToFile(new File(resDir, "drawable/${drawableName}.xml"), String.format(ResTemplate.DRAWABLE, generateColor()))
             }
         }
     }
@@ -233,23 +278,27 @@ class JunkUtil {
      */
     static void generateStringsFile(File resDir, JunkCodeConfig config) {
         def stringFile = new File(resDir, "values/strings.xml")
-        StringBuilder sb = new StringBuilder()
-        StringBuilder valueSb = new StringBuilder()
-        sb.append("<resources>\n")
+        StringBuilder contentBuilder = new StringBuilder()
+        StringBuilder keyBuilder = new StringBuilder()
+        StringBuilder valueBuilder = new StringBuilder()
+        contentBuilder.append("<resources>\n")
         for (int i = 0; i < config.stringCount; i++) {
-            def key = "${config.resPrefix.toLowerCase()}${generateName(i)}"
+            def key
             def value
-            if (config.stringGenerator) {
-                valueSb.setLength(0)
-                config.stringGenerator.execute(valueSb)
-                value = valueSb.toString()
+            if (config.stringCreator) {
+                keyBuilder.setLength(0)
+                valueBuilder.setLength(0)
+                config.stringCreator.execute(new Tuple3(i, keyBuilder, valueBuilder))
+                key = keyBuilder.toString()
+                value = valueBuilder.toString()
             } else {
+                key = "${config.resPrefix.toLowerCase()}${generateName(i)}"
                 value = generateName(i)
             }
-            sb.append("<string name=\"${key}\">${value}</string>\n")
+            contentBuilder.append("<string name=\"${key}\">${value}</string>\n")
         }
-        sb.append("</resources>\n")
-        writeStringToFile(stringFile, sb.toString())
+        contentBuilder.append("</resources>\n")
+        writeStringToFile(stringFile, contentBuilder.toString())
     }
 
     /**
@@ -258,11 +307,21 @@ class JunkUtil {
      * @param config
      */
     static void generateKeep(File resDir, JunkCodeConfig config) {
-        def keepFile = new File(resDir, "raw/android_junk_code_keep.xml")
-        StringBuilder sb = new StringBuilder()
-        sb.append("<resources xmlns:tools=\"http://schemas.android.com/tools\"\n" +
-                "    tools:keep=\"@layout/${config.resPrefix}*, @drawable/${config.resPrefix}*\" />\n")
-        writeStringToFile(keepFile, sb.toString())
+        def keepName
+        def keepContent
+        if (config.keepCreator) {
+            def fileNameBuilder = new StringBuilder()
+            def contentBuilder = new StringBuilder()
+            config.keepCreator.execute(new Tuple2(fileNameBuilder, contentBuilder))
+            keepName = fileNameBuilder.toString()
+            keepContent = contentBuilder.toString()
+        } else {
+            keepName = "android_junk_code_keep"
+            keepContent = "<resources xmlns:tools=\"http://schemas.android.com/tools\"\n" +
+                    "    tools:keep=\"@layout/${config.resPrefix}*, @drawable/${config.resPrefix}*\" />\n"
+        }
+        def keepFile = new File(resDir, "raw/${keepName}.xml")
+        writeStringToFile(keepFile, keepContent)
     }
 
     /**

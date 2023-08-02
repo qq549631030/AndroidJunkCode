@@ -33,10 +33,16 @@ abstract class AndroidJunkCodeTask extends DefaultTask {
         resOutDir.deleteDir()
         for (int i = 0; i < config.packageCount; i++) {
             String packageName
-            if (config.packageBase.isEmpty()) {
-                packageName = JunkUtil.generateName(i)
+            if (config.packageCreator) {
+                def packageNameBuilder = new StringBuffer()
+                config.packageCreator.execute(new Tuple2(i, packageNameBuilder))
+                packageName = packageNameBuilder.toString()
             } else {
-                packageName = config.packageBase + "." + JunkUtil.generateName(i)
+                if (config.packageBase.isEmpty()) {
+                    packageName = JunkUtil.generateName(i)
+                } else {
+                    packageName = config.packageBase + "." + JunkUtil.generateName(i)
+                }
             }
             def list = JunkUtil.generateActivity(javaOutDir, resOutDir, namespace, packageName, config)
             activityList.addAll(list)
