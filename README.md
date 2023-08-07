@@ -12,7 +12,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.github.qq549631030:android-junk-code:x.x.x"
+        classpath "com.github.qq549631030:android-junk-code:x.x.x" //x.x.x换成最新的插件版本号
     }
 }
 ```
@@ -221,6 +221,7 @@ androidJunkCode {
 ```
 
 如果所有代码生成都不想用插件来完成，可用如下实现。插件只负责把你生成的文件打进包里
+
 ```groovy
 androidJunkCode {
     variantConfig {
@@ -249,7 +250,13 @@ androidJunkCode {
 
 ### 生成文件所在目录
 
-build/generated/source/junk
+*AGP 7.4.0以前*
+build/generated/source/junk  
+
+*AGP 7.4.0以后 （XXX是你配置的变体首字母大写，如：Release、FreeRelease）*
+build/generated/java/generateXXXJunkCode   
+build/generated/res/generateXXXJunkCode   
+build/generated/source/junk/XXX/AndroidManifest.xml  
 
 ### 使用插件[methodCount](https://github.com/KeepSafe/dexcount-gradle-plugin)对比
 

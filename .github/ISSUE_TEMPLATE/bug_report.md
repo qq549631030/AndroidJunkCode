@@ -1,6 +1,6 @@
 ---
-name: Bug report
-about: 提Bug模板
+name: 提交 Bug
+about: 请按要求提issue，提供以下信息，以便作者快速定位问题，谢谢
 title: ''
 labels: ''
 assignees: ''
