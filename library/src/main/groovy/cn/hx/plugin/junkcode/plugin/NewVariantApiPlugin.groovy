@@ -30,6 +30,7 @@ class NewVariantApiPlugin implements Plugin<Project> {
                     javaOutputFolder.set(new File(junkCodeOutDir, "java"))
                     resOutputFolder.set(new File(junkCodeOutDir, "res"))
                     manifestOutputFile.set(new File(junkCodeOutDir, "AndroidManifest.xml"))
+                    proguardOutputFile.set(new File(junkCodeOutDir, "proguard-rules.pro"))
                 }
                 if (variant.sources.java) {
                     variant.sources.java.addGeneratedSourceDirectory(generateJunkCodeTaskProvider, {
@@ -50,6 +51,9 @@ class NewVariantApiPlugin implements Plugin<Project> {
                         .wiredWithFiles({ it.mergedManifest },
                                 { it.updatedManifest })
                         .toTransform(SingleArtifact.MERGED_MANIFEST.INSTANCE)
+                variant.proguardFiles.add(generateJunkCodeTaskProvider.flatMap {
+                    it.proguardOutputFile
+                })
             }
         })
     }

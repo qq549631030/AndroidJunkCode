@@ -24,8 +24,12 @@ abstract class GenerateJunkCodeTask extends DefaultTask {
     @OutputFile
     abstract RegularFileProperty getManifestOutputFile()
 
-    @Internal
-    List<String> activityList = new ArrayList<>()
+    @OutputFile
+    abstract RegularFileProperty getProguardOutputFile()
+
+
+    private List<String> packageList = new ArrayList<>()
+    private List<String> activityList = new ArrayList<>()
 
     @TaskAction
     void taskAction() {
@@ -52,7 +56,10 @@ abstract class GenerateJunkCodeTask extends DefaultTask {
                 def list = JunkUtil.generateActivity(javaDir, resDir, namespace, packageName, config)
                 activityList.addAll(list)
                 JunkUtil.generateJava(javaDir, packageName, config)
+                packageList.add(packageName)
             }
+            //生成混淆文件
+            JunkUtil.generateProguard(getProguardOutputFile().get().asFile, packageList)
         }
         if (config.resGenerator) {
             config.resGenerator.execute(resOutDir)

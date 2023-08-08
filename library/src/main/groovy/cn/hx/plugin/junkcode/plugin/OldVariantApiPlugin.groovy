@@ -43,12 +43,14 @@ class OldVariantApiPlugin implements Plugin<Project> {
                 def javaDir = new File(junkCodeOutDir, "java")
                 def resDir = new File(junkCodeOutDir, "res")
                 def manifestFile = new File(junkCodeOutDir, "AndroidManifest.xml")
+                def proguardFile = new File(junkCodeOutDir, "proguard-rules.pro")
                 def generateJunkCodeTask = project.tasks.create("generate${variantName.capitalize()}JunkCode", AndroidJunkCodeTask) {
                     config = junkCodeConfig
                     namespace = junkCodeNamespace
                     javaOutDir = javaDir
                     resOutDir = resDir
                     manifestOutFile = manifestFile
+                    proguardOutFile = proguardFile
                 }
                 //将自动生成的AndroidManifest.xml加入到一个未被占用的manifest位置(如果都占用了就不合并了，通常较少出现全被占用情况)
                 for (int i = variant.sourceSets.size() - 1; i >= 0; i--) {
@@ -84,6 +86,7 @@ class OldVariantApiPlugin implements Plugin<Project> {
                 } else {
                     variant.registerResGeneratingTask(generateJunkCodeTask, resDir)//AGP 1.1.0+
                 }
+                variant.getBuildType().buildType.proguardFile(proguardFile)
             }
         }
     }

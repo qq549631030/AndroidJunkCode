@@ -25,6 +25,10 @@ abstract class AndroidJunkCodeTask extends DefaultTask {
     @OutputFile
     abstract File manifestOutFile
 
+    @OutputFile
+    abstract File proguardOutFile
+
+    private List<String> packageList = new ArrayList<>()
     private List<String> activityList = new ArrayList<>()
 
     @TaskAction
@@ -50,7 +54,10 @@ abstract class AndroidJunkCodeTask extends DefaultTask {
                 def list = JunkUtil.generateActivity(javaOutDir, resOutDir, namespace, packageName, config)
                 activityList.addAll(list)
                 JunkUtil.generateJava(javaOutDir, packageName, config)
+                packageList.add(packageName)
             }
+            //生成混淆文件
+            JunkUtil.generateProguard(proguardOutFile, packageList)
         }
         if (config.resGenerator) {//自定义生成res逻辑
             config.resGenerator.execute(resOutDir)

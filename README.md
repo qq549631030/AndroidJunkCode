@@ -65,7 +65,7 @@ androidJunkCode {
 }
 ```
 
-如果APP开启了混淆，需要在混淆文件里配置
+如果APP开启了混淆，需要在混淆文件里配置 (1.3.0之后不需求配置)
 
 ```
 #cn.hx.plugin.ui为前面配置的packageBase

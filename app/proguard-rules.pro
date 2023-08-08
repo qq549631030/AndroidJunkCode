@@ -19,6 +19,3 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
-
--keep class cn.hx.plugin.ui.** {*;}
--keep class cn.hx.package*.** {*;}

@@ -344,6 +344,21 @@ class JunkUtil {
         writeStringToFile(manifestFile, sb.toString())
     }
 
+
+    /**
+     * 生成proguard-rules.pro
+     *
+     * @param manifestFile
+     * @param activityList
+     */
+    static void generateProguard(File proguardFile, List<String> packageList) {
+        StringBuilder sb = new StringBuilder()
+        for (i in 0..<packageList.size()) {
+            sb.append("-keep public class ${packageList.get(i)}.**{*;}\n")
+        }
+        writeStringToFile(proguardFile, sb.toString())
+    }
+
     /**
      * java写入文件
      * @param javaDir
