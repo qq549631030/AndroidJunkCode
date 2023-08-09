@@ -42,6 +42,24 @@ androidJunkCode {
 }
 ```
 
+**注：从1.3.0开始本库已经上传到Gradle Plugin Portal 可直接这样使用**
+
+```groovy
+plugins {
+    //插件id和前面mavenCentral的不一样
+    //开头是io.github不是com.github
+    id "io.github.qq549631030.android-junk-code" version "x.x.x"
+}
+
+androidJunkCode {
+    variantConfig {
+        release {
+            //...
+        }
+    }
+}
+```
+
 如果有多个变体共用一个配置可以这样做
 
 ```groovy
