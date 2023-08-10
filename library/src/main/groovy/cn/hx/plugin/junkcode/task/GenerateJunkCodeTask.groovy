@@ -5,6 +5,7 @@ import cn.hx.plugin.junkcode.utils.JunkUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 
 abstract class GenerateJunkCodeTask extends DefaultTask {
@@ -13,7 +14,7 @@ abstract class GenerateJunkCodeTask extends DefaultTask {
     abstract JunkCodeConfig config
 
     @Input
-    abstract String namespace
+    abstract Property<String> getNamespace()
 
     @OutputDirectory
     abstract DirectoryProperty getJavaOutputFolder()
@@ -53,7 +54,7 @@ abstract class GenerateJunkCodeTask extends DefaultTask {
                         packageName = config.packageBase + "." + JunkUtil.generateName(i)
                     }
                 }
-                def list = JunkUtil.generateActivity(javaDir, resDir, namespace, packageName, config)
+                def list = JunkUtil.generateActivity(javaDir, resDir, getNamespace().get(), packageName, config)
                 activityList.addAll(list)
                 JunkUtil.generateJava(javaDir, packageName, config)
                 packageList.add(packageName)

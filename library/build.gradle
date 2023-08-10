@@ -81,5 +81,5 @@ java {
 dependencies {
     implementation gradleApi()
     implementation 'com.squareup:javapoet:1.13.0'
-    compileOnly 'com.android.tools.build:gradle-api:7.1.0'
+    compileOnly 'com.android.tools.build:gradle-api:7.0.0'
 }

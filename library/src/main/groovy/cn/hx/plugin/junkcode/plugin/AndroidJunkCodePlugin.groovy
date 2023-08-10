@@ -1,6 +1,6 @@
 package cn.hx.plugin.junkcode.plugin
 
-
+import cn.hx.plugin.junkcode.utils.JunkUtil
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -12,10 +12,8 @@ class AndroidJunkCodePlugin implements Plugin<Project> {
         if (!android || !android.hasProperty("applicationVariants")) {
             throw IllegalArgumentException("must apply this plugin after 'com.android.application'")
         }
-        def androidComponents = project.extensions.findByName("androidComponents")
-        //AGP 7.4.0+
-        if (androidComponents && androidComponents.hasProperty("pluginVersion")
-                && (androidComponents.pluginVersion.major > 7 || androidComponents.pluginVersion.minor >= 4)) {
+        //AGP 7.0.0+
+        if (JunkUtil.isAGP7_0_0(project)) {
             new NewVariantApiPlugin().apply(project)
         } else {
             new OldVariantApiPlugin().apply(project)

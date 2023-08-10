@@ -6,7 +6,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.*
 
 /**
- * before AGP 7.4.0
+ * before AGP 7.0.0
  */
 abstract class AndroidJunkCodeTask extends DefaultTask {
 

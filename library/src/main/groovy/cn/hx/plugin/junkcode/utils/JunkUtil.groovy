@@ -6,6 +6,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeSpec
+import org.gradle.api.Project
 
 import javax.lang.model.element.Modifier
 import java.nio.file.Files
@@ -396,5 +397,30 @@ class JunkUtil {
                 writer.close()
             }
         }
+    }
+
+    /**
+     * 是否是AGP7.0.0及以上
+     * @param project
+     * @return
+     */
+    static boolean isAGP7_0_0(Project project) {
+        def androidComponents = project.extensions.findByName("androidComponents")
+        if (androidComponents && androidComponents.hasProperty("pluginVersion")) {
+            return true
+        }
+        return false
+    }
+    /**
+     * 是否是AGP7.4.0及以上
+     * @param project
+     * @return
+     */
+    static boolean isAGP7_4_0(Project project) {
+        def androidComponents = project.extensions.findByName("androidComponents")
+        if (androidComponents && androidComponents.hasProperty("pluginVersion") && (androidComponents.pluginVersion.major > 7 || androidComponents.pluginVersion.minor >= 4)) {
+            return true
+        }
+        return false
     }
 }

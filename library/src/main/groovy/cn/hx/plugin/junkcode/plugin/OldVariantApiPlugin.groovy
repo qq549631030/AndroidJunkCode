@@ -7,7 +7,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * before AGP 7.4.0
+ * before AGP 7.0.0
  */
 class OldVariantApiPlugin implements Plugin<Project> {
 

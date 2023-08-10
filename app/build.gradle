@@ -172,7 +172,7 @@ if (PLUGIN_ENABLE.toBoolean()) {
 
                 //例
                 fileNameBuilder.append("android_junk_code_keep")
-                contentBuilder.append( "<resources xmlns:tools=\"http://schemas.android.com/tools\"\n" +
+                contentBuilder.append("<resources xmlns:tools=\"http://schemas.android.com/tools\"\n" +
                         "    tools:keep=\"@layout/activity_*, @drawable/drawable*\" />\n")
             }
 
