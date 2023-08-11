@@ -17,6 +17,9 @@ abstract class GenerateJunkCodeTask extends DefaultTask {
     abstract Property<String> getNamespace()
 
     @OutputDirectory
+    abstract DirectoryProperty getOutputFolder()
+
+    @OutputDirectory
     abstract DirectoryProperty getJavaOutputFolder()
 
     @OutputDirectory
@@ -31,6 +34,13 @@ abstract class GenerateJunkCodeTask extends DefaultTask {
 
     private List<String> packageList = new ArrayList<>()
     private List<String> activityList = new ArrayList<>()
+
+    GenerateJunkCodeTask() {
+        getJavaOutputFolder().convention(getOutputFolder().dir("java"))
+        getResOutputFolder().convention(getOutputFolder().dir("res"))
+        getManifestOutputFile().convention(getOutputFolder().file("AndroidManifest.xml"))
+        getProguardOutputFile().convention(getOutputFolder().file("proguard-rules.pro"))
+    }
 
     @TaskAction
     void taskAction() {

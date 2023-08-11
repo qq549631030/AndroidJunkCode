@@ -42,7 +42,7 @@ androidJunkCode {
 }
 ```
 
-**注：从1.3.0开始本库已经上传到Gradle Plugin Portal 可直接这样使用**
+**注：从1.3.1开始本库已经上传到Gradle Plugin Portal 可直接这样使用**
 
 ```groovy
 plugins {
@@ -83,7 +83,7 @@ androidJunkCode {
 }
 ```
 
-如果APP开启了混淆，需要在混淆文件里配置 (1.3.0之后不需求配置)
+如果APP开启了混淆，需要在混淆文件里配置 (1.3.1之后不需求配置)
 
 ```
 #cn.hx.plugin.ui为前面配置的packageBase

@@ -30,10 +30,7 @@ class NewVariantApiPlugin implements Plugin<Project> {
                 def generateJunkCodeTaskProvider = project.tasks.register("generate${variantName.capitalize()}JunkCode", GenerateJunkCodeTask) {
                     config = junkCodeConfig
                     namespace = variant.namespace
-                    javaOutputFolder.set(junkCodeOutDir.map { it.dir("java") })
-                    resOutputFolder.set(junkCodeOutDir.map { it.dir("res") })
-                    manifestOutputFile.set(junkCodeOutDir.map { it.file("AndroidManifest.xml") })
-                    proguardOutputFile.set(junkCodeOutDir.map { it.file("proguard-rules.pro") })
+                    outputFolder.set(junkCodeOutDir)
                 }
                 if (JunkUtil.isAGP7_4_0(project)) {
                     if (variant.sources.java) {
@@ -68,12 +65,9 @@ class NewVariantApiPlugin implements Plugin<Project> {
                 def junkCodeConfig = generateJunkCodeExt.variantConfig.findByName(variantName)
                 if (junkCodeConfig) {
                     def generateJunkCodeTaskProvider = project.tasks.named("generate${variantName.capitalize()}JunkCode", GenerateJunkCodeTask)
-                    variant.registerJavaGeneratingTask(generateJunkCodeTaskProvider, generateJunkCodeTaskProvider.get().javaOutputFolder.get().asFile)
-
-                    variant.registerGeneratedResFolders(project.files(generateJunkCodeTaskProvider.map {
-                        it.resOutputFolder.asFile
-                    }).builtBy(generateJunkCodeTaskProvider))
-                    variant.mergeResourcesProvider.configure { dependsOn(generateJunkCodeTaskProvider.get()) }
+                    def junkCodeOutDir = project.layout.buildDirectory.dir("generated/source/junk/${variantName}")
+                    variant.registerJavaGeneratingTask(generateJunkCodeTaskProvider, junkCodeOutDir.map { it.dir("java") }.get().asFile)
+                    variant.registerGeneratedResFolders(project.files(junkCodeOutDir.map { it.dir("res") }.get().asFile).builtBy(generateJunkCodeTaskProvider))
                 }
             }
         }

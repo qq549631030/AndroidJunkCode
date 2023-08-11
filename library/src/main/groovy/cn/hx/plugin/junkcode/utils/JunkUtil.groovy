@@ -355,7 +355,7 @@ class JunkUtil {
     static void generateProguard(File proguardFile, List<String> packageList) {
         StringBuilder sb = new StringBuilder()
         for (i in 0..<packageList.size()) {
-            sb.append("-keep public class ${packageList.get(i)}.**{*;}\n")
+            sb.append("-keep class ${packageList.get(i)}.**{*;}\n")
         }
         writeStringToFile(proguardFile, sb.toString())
     }
