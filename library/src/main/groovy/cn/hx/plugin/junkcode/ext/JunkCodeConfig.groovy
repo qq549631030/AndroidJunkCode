@@ -62,6 +62,9 @@ class JunkCodeConfig {
     Action<Tuple2<StringBuilder, StringBuilder>> keepCreator = null
 
     @Internal
+    Action<Tuple2<List<String>, StringBuilder>> proguardCreator = null
+
+    @Internal
     Action<File> javaGenerator = null
 
     @Internal

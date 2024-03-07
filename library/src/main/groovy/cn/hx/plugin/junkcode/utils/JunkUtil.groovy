@@ -352,10 +352,14 @@ class JunkUtil {
      * @param manifestFile
      * @param activityList
      */
-    static void generateProguard(File proguardFile, List<String> packageList) {
+    static void generateProguard(File proguardFile, List<String> packageList, JunkCodeConfig config) {
         StringBuilder sb = new StringBuilder()
-        for (i in 0..<packageList.size()) {
-            sb.append("-keep class ${packageList.get(i)}.**{*;}\n")
+        if (config.proguardCreator) {
+            config.proguardCreator.execute(new Tuple2(packageList, sb))
+        } else {
+            for (i in 0..<packageList.size()) {
+                sb.append("-keep class ${packageList.get(i)}.**{*;}\n")
+            }
         }
         writeStringToFile(proguardFile, sb.toString())
     }

@@ -57,7 +57,7 @@ abstract class AndroidJunkCodeTask extends DefaultTask {
                 packageList.add(packageName)
             }
             //生成混淆文件
-            JunkUtil.generateProguard(proguardOutFile, packageList)
+            JunkUtil.generateProguard(proguardOutFile, packageList, config)
         }
         if (config.resGenerator) {//自定义生成res逻辑
             config.resGenerator.execute(resOutDir)

@@ -176,6 +176,17 @@ if (PLUGIN_ENABLE.toBoolean()) {
                         "    tools:keep=\"@layout/activity_*, @drawable/drawable*\" />\n")
             }
 
+            proguardCreator = { tuple2 ->
+                //List<String>:生成的包名列表
+                def packageList = tuple2.first
+                //StringBuilder: 生成的文件内容
+                def contentBuilder = tuple2.second
+
+                //例
+                for (i in 0..<packageList.size()) {
+                    contentBuilder.append("-keep class ${packageList.get(i)}.**{*;}\n")
+                }
+            }
             //自定义类实现（类名已经实现随机，Activity类已经实现了onCreate，其它自己实现随机）
             //注意设置了此实现将忽略 methodGenerator,methodCountPerClass
             //TypeSpec.Builder用法请参考(https://github.com/square/javapoet)

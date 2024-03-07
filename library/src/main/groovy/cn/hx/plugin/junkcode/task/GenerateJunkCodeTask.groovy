@@ -70,7 +70,7 @@ abstract class GenerateJunkCodeTask extends DefaultTask {
                 packageList.add(packageName)
             }
             //生成混淆文件
-            JunkUtil.generateProguard(getProguardOutputFile().get().asFile, packageList)
+            JunkUtil.generateProguard(getProguardOutputFile().get().asFile, packageList, config)
         }
         if (config.resGenerator) {
             config.resGenerator.execute(resOutDir)
