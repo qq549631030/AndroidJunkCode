@@ -54,7 +54,7 @@ abstract class GenerateJunkCodeTask extends DefaultTask {
             for (int i = 0; i < config.packageCount; i++) {
                 String packageName
                 if (config.packageCreator) {
-                    def packageNameBuilder = new StringBuffer()
+                    def packageNameBuilder = new StringBuilder()
                     config.packageCreator.execute(new Tuple2(i, packageNameBuilder))
                     packageName = packageNameBuilder.toString()
                 } else {
