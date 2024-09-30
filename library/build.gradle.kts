@@ -1,7 +1,7 @@
 plugins {
-    groovy
     id("com.gradle.plugin-publish") version "1.3.0"
     id("com.vanniktech.maven.publish") version "0.29.0"
+    alias(libs.plugins.kotlin.jvm)
 }
 
 gradlePlugin {
@@ -19,12 +19,13 @@ gradlePlugin {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 dependencies {
-    implementation(gradleApi())
+    compileOnly(libs.android.gradlePlugin.api)
+    implementation(gradleKotlinDsl())
     implementation(libs.javapoet)
-    compileOnly(libs.gradle.api)
 }
