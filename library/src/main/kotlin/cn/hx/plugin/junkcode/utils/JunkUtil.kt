@@ -277,7 +277,7 @@ object JunkUtil {
             val keepName = "android_junk_code_keep"
             val keepFile = File(resDir, "raw/${keepName}.xml")
             val keepContent = "<resources xmlns:tools=\"http://schemas.android.com/tools\"\n" +
-                    "    tools:keep=\"@layout/${config.resPrefix}*, @drawable/${config.resPrefix}*\" />\n"
+                    "    tools:keep=\"@layout/${config.resPrefix}*, @drawable/${config.resPrefix}*, @string/${config.resPrefix}*\" />\n"
             writeStringToFile(keepFile, keepContent)
         }
     }

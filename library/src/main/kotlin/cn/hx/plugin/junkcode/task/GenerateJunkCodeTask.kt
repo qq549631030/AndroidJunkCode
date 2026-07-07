@@ -5,12 +5,16 @@ import cn.hx.plugin.junkcode.utils.JunkUtil
 import groovy.lang.Tuple2
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault(because = "Junk code generation can be customized by user-provided actions.")
 abstract class GenerateJunkCodeTask : DefaultTask() {
 
     @get:Nested
@@ -20,7 +24,16 @@ abstract class GenerateJunkCodeTask : DefaultTask() {
     abstract val namespace: Property<String>
 
     @get:OutputDirectory
-    abstract val outputFolder: DirectoryProperty
+    abstract val javaOutputDir: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val resOutputDir: DirectoryProperty
+
+    @get:OutputFile
+    abstract val manifestOutputFile: RegularFileProperty
+
+    @get:OutputFile
+    abstract val proguardOutputFile: RegularFileProperty
 
     private val packageList = mutableListOf<String>()
 
@@ -28,14 +41,17 @@ abstract class GenerateJunkCodeTask : DefaultTask() {
 
     @TaskAction
     fun taskAction() {
-        outputFolder.get().asFile.delete()
+        javaOutputDir.get().asFile.deleteRecursively()
+        resOutputDir.get().asFile.deleteRecursively()
+        manifestOutputFile.get().asFile.delete()
+        proguardOutputFile.get().asFile.delete()
         packageList.clear()
         activityList.clear()
         val junkCodeConfig = config.get()
-        val javaDir = outputFolder.dir("java").get().asFile
-        val resDir = outputFolder.dir("res").get().asFile
-        val manifestOutputFile = outputFolder.file("AndroidManifest.xml").get().asFile
-        val proguardOutputFile = outputFolder.file("proguard-rules.pro").get().asFile
+        val javaDir = javaOutputDir.get().asFile
+        val resDir = resOutputDir.get().asFile
+        val manifestOutputFile = manifestOutputFile.get().asFile
+        val proguardOutputFile = proguardOutputFile.get().asFile
         junkCodeConfig.javaGenerator?.execute(javaDir) ?: run {
             for (i in 0 until junkCodeConfig.packageCount) {
                 val packageName = junkCodeConfig.packageCreator?.let {

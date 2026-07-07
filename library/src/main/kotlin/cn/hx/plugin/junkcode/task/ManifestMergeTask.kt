@@ -7,7 +7,9 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault(because = "The task rewrites the merged manifest for the current variant only.")
 abstract class ManifestMergeTask : DefaultTask() {
 
     @get:InputFile

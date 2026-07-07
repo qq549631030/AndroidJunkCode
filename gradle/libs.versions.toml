@@ -1,22 +1,21 @@
 [versions]
-agp = "9.0.0"
+agp = "9.2.1"
 javapoet = "1.13.0"
 # @pin 最低支持AGP版本
 gradleApi = "7.4.0"
-kotlin = "2.3.10"
-coreKtx = "1.17.0"
+kotlin = "2.4.0"
+coreKtx = "1.19.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 appcompat = "1.7.1"
-material = "1.13.0"
-activity = "1.12.4"
+material = "1.14.0"
+activity = "1.13.0"
 constraintlayout = "2.2.1"
-junkCode = "2.0.0"
-#junkCode = "1.3.4"
+junkCode = "2.0.1"
 dexcount = "4.0.0"
-mavemPublish = "0.36.0"
-pluginPublish = "2.0.0"
+mavemPublish = "0.37.0"
+pluginPublish = "2.1.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

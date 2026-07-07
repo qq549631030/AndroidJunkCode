@@ -76,4 +76,8 @@ open class JunkCodeConfig(@Internal val name: String) {
 
     @Internal
     var manifestGenerator: Action<File>? = null
+
+    override fun toString(): String {
+        return "JunkCodeConfig(name='$name', packageBase='$packageBase', packageCount=$packageCount, activityCountPerPackage=$activityCountPerPackage, excludeActivityJavaFile=$excludeActivityJavaFile, otherCountPerPackage=$otherCountPerPackage, methodCountPerClass=$methodCountPerClass, resPrefix='$resPrefix', drawableCount=$drawableCount, stringCount=$stringCount, typeGenerator=$typeGenerator, methodGenerator=$methodGenerator, packageCreator=$packageCreator, activityCreator=$activityCreator, classNameCreator=$classNameCreator, methodNameCreator=$methodNameCreator, drawableCreator=$drawableCreator, stringCreator=$stringCreator, keepCreator=$keepCreator, proguardCreator=$proguardCreator, javaGenerator=$javaGenerator, resGenerator=$resGenerator, manifestGenerator=$manifestGenerator)"
+    }
 }

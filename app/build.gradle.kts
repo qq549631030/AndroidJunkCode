@@ -3,17 +3,20 @@ import cn.hx.plugin.junkcode.ext.JunkCodeConfig
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.android.junk.code)
-    alias(libs.plugins.dexcount)
+}
+
+if (providers.gradleProperty("DEXCOUNT_ENABLE").map(String::toBoolean).getOrElse(false)) {
+    pluginManager.apply(libs.plugins.dexcount.get().pluginId)
 }
 
 android {
     namespace = "cn.hx.plugin.junkcode.demo"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "cn.hx.plugin.junkcode.demo"
         minSdk = 23
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
         multiDexEnabled = true
@@ -43,7 +46,7 @@ android {
     }
 }
 
-if (project.properties["PLUGIN_ENABLE"].toString().toBoolean()) {
+if (providers.gradleProperty("PLUGIN_ENABLE").map(String::toBoolean).getOrElse(false)) {
     androidJunkCode {
         debug = true
         /**
@@ -222,8 +225,28 @@ if (project.properties["PLUGIN_ENABLE"].toString().toBoolean()) {
         }
 
         variantConfig {
-            create("debug", config)
+//            create("debug", config)
             create("release", partCustomConfig)
+        }
+    }
+}
+
+androidComponents {
+    beforeVariants { variantBuilder ->
+        if (variantBuilder.buildType == "debug") {
+            variantBuilder.registerExtension(
+                JunkCodeConfig::class.java,
+                JunkCodeConfig(variantBuilder.name).apply {
+                    packageBase = "cn.hx.plugin.ui"
+                    packageCount = 30
+                    activityCountPerPackage = 30
+                    excludeActivityJavaFile = false
+                    otherCountPerPackage = 50
+                    methodCountPerClass = 20
+                    resPrefix = "junk_"
+                    drawableCount = 300
+                    stringCount = 300
+                })
         }
     }
 }
