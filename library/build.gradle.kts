@@ -40,7 +40,7 @@ if (libraryProperty("publishToMaven").get().toBoolean()) {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
@@ -53,6 +53,7 @@ kotlin {
 }
 
 dependencies {
+    compileOnly(gradleApi())
     compileOnly(libs.android.gradlePlugin.api)
     implementation(libs.javapoet)
 }
