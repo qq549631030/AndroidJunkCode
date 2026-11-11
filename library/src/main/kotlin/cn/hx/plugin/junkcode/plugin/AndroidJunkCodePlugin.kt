@@ -4,6 +4,7 @@ import cn.hx.plugin.junkcode.ext.AndroidJunkCodeExt
 import cn.hx.plugin.junkcode.ext.JunkCodeConfig
 import cn.hx.plugin.junkcode.task.GenerateJunkCodeTask
 import cn.hx.plugin.junkcode.task.ManifestMergeTask
+import cn.hx.plugin.junkcode.task.ShuffleApplicationManifestTask
 import cn.hx.plugin.junkcode.utils.capitalizeCompat
 import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.artifact.SingleArtifact
@@ -86,6 +87,19 @@ class AndroidJunkCodePlugin : Plugin<Project> {
                             { it.updatedManifest })
                         .toTransform(SingleArtifact.MERGED_MANIFEST)
                 }
+                //打乱AndroidManifest.xml application下元素顺序
+                val shuffleManifestTaskProvider = tasks.register(
+                    "shuffle${variantName.capitalizeCompat()}ApplicationManifest",
+                    ShuffleApplicationManifestTask::class.java
+                ) { task ->
+                    task.variantName.set(variantName)
+                }
+                variant.artifacts.use(shuffleManifestTaskProvider)
+                    .wiredWithFiles(
+                        { it.inputManifest },
+                        { it.outputManifest })
+                    .toTransform(SingleArtifact.MERGED_MANIFEST)
+
                 //混淆文件
                 variant.proguardFiles.add(generateJunkCodeTaskProvider.flatMap {
                     it.proguardOutputFile
