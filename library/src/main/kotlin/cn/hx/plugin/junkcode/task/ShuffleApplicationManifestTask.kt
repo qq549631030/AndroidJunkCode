@@ -15,6 +15,7 @@ import java.io.File
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 import java.util.Collections
+import java.util.PriorityQueue
 import java.util.Random
 import javax.xml.XMLConstants
 import javax.xml.parsers.DocumentBuilderFactory
@@ -68,12 +69,17 @@ abstract class ShuffleApplicationManifestTask : DefaultTask() {
             }
         }
 
+        val orderedElements = preserveActivityAliasTargetsBeforeAliases(
+            shuffledElements,
+            document.documentElement.getAttribute("package")
+        )
+
         var elementIndex = 0
         while (application.hasChildNodes()) {
             application.removeChild(application.firstChild)
         }
         originalNodes.forEach { node ->
-            application.appendChild(if (node is Element) shuffledElements[elementIndex++] else node)
+            application.appendChild(if (node is Element) orderedElements[elementIndex++] else node)
         }
 
         outputFile.parentFile.mkdirs()
@@ -87,9 +93,68 @@ abstract class ShuffleApplicationManifestTask : DefaultTask() {
         logger.lifecycle(
             "{}: Shuffled {} direct application child elements",
             path,
-            shuffledElements.size
+            orderedElements.size
         )
     }
+
+    /**
+     * Android 要求 activity-alias 的目标 activity 必须先声明。
+     * 在尽量保留随机顺序的同时，强制满足这一依赖关系。
+     */
+    private fun preserveActivityAliasTargetsBeforeAliases(
+        elements: List<Element>,
+        manifestPackage: String
+    ): List<Element> {
+        val shuffledIndex = elements.withIndex().associate { (index, element) -> element to index }
+        val activitiesByName = elements.indices
+            .filter { elements[it].localNameOrTagName() == "activity" }
+            .groupBy { index ->
+                normalizeComponentName(
+                    elements[index].getAttributeNS(ANDROID_NAMESPACE, "name"),
+                    manifestPackage
+                )
+            }
+            .filterKeys(String::isNotEmpty)
+
+        val dependents = Array(elements.size) { mutableListOf<Int>() }
+        val dependencyCount = IntArray(elements.size)
+        elements.forEachIndexed { aliasIndex, element ->
+            if (element.localNameOrTagName() != "activity-alias") return@forEachIndexed
+            val targetName = normalizeComponentName(
+                element.getAttributeNS(ANDROID_NAMESPACE, "targetActivity"),
+                manifestPackage
+            )
+            activitiesByName[targetName].orEmpty().forEach { targetIndex ->
+                dependents[targetIndex].add(aliasIndex)
+                dependencyCount[aliasIndex]++
+            }
+        }
+
+        val ready = PriorityQueue<Int>(compareBy { shuffledIndex.getValue(elements[it]) })
+        dependencyCount.indices.filterTo(ready) { dependencyCount[it] == 0 }
+        val ordered = ArrayList<Element>(elements.size)
+        while (ready.isNotEmpty()) {
+            val index = ready.remove()
+            ordered.add(elements[index])
+            dependents[index].forEach { dependent ->
+                dependencyCount[dependent]--
+                if (dependencyCount[dependent] == 0) ready.add(dependent)
+            }
+        }
+
+        // 依赖图只包含 activity -> alias 边，不会形成循环。
+        // 如果遇到异常或非标准 DOM，保留安全回退逻辑。
+        return if (ordered.size == elements.size) ordered else elements
+    }
+
+    private fun normalizeComponentName(name: String, manifestPackage: String): String = when {
+        name.isEmpty() -> ""
+        name.startsWith(".") -> manifestPackage + name
+        '.' !in name && manifestPackage.isNotEmpty() -> "$manifestPackage.$name"
+        else -> name
+    }
+
+    private fun Element.localNameOrTagName(): String = localName ?: tagName.substringAfter(':')
 
     private fun createSeed(inputFile: File, variant: String): Long {
         val digest = MessageDigest.getInstance("SHA-256")
@@ -99,6 +164,7 @@ abstract class ShuffleApplicationManifestTask : DefaultTask() {
 
     private fun createDocumentBuilderFactory(): DocumentBuilderFactory =
         DocumentBuilderFactory.newInstance().apply {
+            isNamespaceAware = true
             setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
             setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
             setFeature("http://xml.org/sax/features/external-general-entities", false)
@@ -108,4 +174,8 @@ abstract class ShuffleApplicationManifestTask : DefaultTask() {
             isXIncludeAware = false
             isExpandEntityReferences = false
         }
+
+    private companion object {
+        const val ANDROID_NAMESPACE = "http://schemas.android.com/apk/res/android"
+    }
 }

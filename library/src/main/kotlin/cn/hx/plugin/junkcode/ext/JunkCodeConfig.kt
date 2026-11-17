@@ -38,6 +38,10 @@ open class JunkCodeConfig(@Internal val name: String) {
     @Input
     var stringCount: Int = 0
 
+    /** 是否打乱合并后 Manifest 中 application 的直接子元素顺序。 */
+    @Input
+    var shuffleApplicationManifest: Boolean = false
+
     @Internal
     var typeGenerator: Action<TypeSpec.Builder>? = null
 
@@ -78,6 +82,6 @@ open class JunkCodeConfig(@Internal val name: String) {
     var manifestGenerator: Action<File>? = null
 
     override fun toString(): String {
-        return "JunkCodeConfig(name='$name', packageBase='$packageBase', packageCount=$packageCount, activityCountPerPackage=$activityCountPerPackage, excludeActivityJavaFile=$excludeActivityJavaFile, otherCountPerPackage=$otherCountPerPackage, methodCountPerClass=$methodCountPerClass, resPrefix='$resPrefix', drawableCount=$drawableCount, stringCount=$stringCount, typeGenerator=$typeGenerator, methodGenerator=$methodGenerator, packageCreator=$packageCreator, activityCreator=$activityCreator, classNameCreator=$classNameCreator, methodNameCreator=$methodNameCreator, drawableCreator=$drawableCreator, stringCreator=$stringCreator, keepCreator=$keepCreator, proguardCreator=$proguardCreator, javaGenerator=$javaGenerator, resGenerator=$resGenerator, manifestGenerator=$manifestGenerator)"
+        return "JunkCodeConfig(name='$name', packageBase='$packageBase', packageCount=$packageCount, activityCountPerPackage=$activityCountPerPackage, excludeActivityJavaFile=$excludeActivityJavaFile, otherCountPerPackage=$otherCountPerPackage, methodCountPerClass=$methodCountPerClass, resPrefix='$resPrefix', drawableCount=$drawableCount, stringCount=$stringCount, shuffleApplicationManifest=$shuffleApplicationManifest, typeGenerator=$typeGenerator, methodGenerator=$methodGenerator, packageCreator=$packageCreator, activityCreator=$activityCreator, classNameCreator=$classNameCreator, methodNameCreator=$methodNameCreator, drawableCreator=$drawableCreator, stringCreator=$stringCreator, keepCreator=$keepCreator, proguardCreator=$proguardCreator, javaGenerator=$javaGenerator, resGenerator=$resGenerator, manifestGenerator=$manifestGenerator)"
     }
 }

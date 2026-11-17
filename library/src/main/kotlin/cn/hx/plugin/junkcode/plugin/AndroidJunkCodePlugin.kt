@@ -71,7 +71,7 @@ class AndroidJunkCodePlugin : Plugin<Project> {
                     if (androidJunkCodeExt.debug) {
                         println("AndroidJunkCode: use ManifestMergeTask.genManifestFile for $variantName")
                     }
-                    //  (AGP < 8.6.0 fallback)
+                    // AGP < 8.6.0 时的兼容处理
                     val manifestUpdater =
                         tasks.register(
                             "merge" + variantName.capitalizeCompat() + "JunkCodeManifest",
@@ -88,17 +88,19 @@ class AndroidJunkCodePlugin : Plugin<Project> {
                         .toTransform(SingleArtifact.MERGED_MANIFEST)
                 }
                 //打乱AndroidManifest.xml application下元素顺序
-                val shuffleManifestTaskProvider = tasks.register(
-                    "shuffle${variantName.capitalizeCompat()}ApplicationManifest",
-                    ShuffleApplicationManifestTask::class.java
-                ) { task ->
-                    task.variantName.set(variantName)
+                if (junkCodeConfig.shuffleApplicationManifest) {
+                    val shuffleManifestTaskProvider = tasks.register(
+                        "shuffle${variantName.capitalizeCompat()}ApplicationManifest",
+                        ShuffleApplicationManifestTask::class.java
+                    ) { task ->
+                        task.variantName.set(variantName)
+                    }
+                    variant.artifacts.use(shuffleManifestTaskProvider)
+                        .wiredWithFiles(
+                            { it.inputManifest },
+                            { it.outputManifest })
+                        .toTransform(SingleArtifact.MERGED_MANIFEST)
                 }
-                variant.artifacts.use(shuffleManifestTaskProvider)
-                    .wiredWithFiles(
-                        { it.inputManifest },
-                        { it.outputManifest })
-                    .toTransform(SingleArtifact.MERGED_MANIFEST)
 
                 //混淆文件
                 variant.proguardFiles.add(generateJunkCodeTaskProvider.flatMap {
